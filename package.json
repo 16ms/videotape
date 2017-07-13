@@ -1,5 +1,5 @@
 {
-	"name": "VideoTape",
+	"name": "videotape",
 	"version": "0.0.1",
 	"scripts": {
 		"start": "node node_modules/react-native-macos/local-cli/cli.js start",
@@ -32,6 +32,7 @@
 		],
 		"preset": "react-native-macos"
 	},
+	"files": ["cli", "build"],
 	"author": "Dmitriy Loktev",
-	"license": "ISC"
+	"license": "MIT"
 }

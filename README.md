@@ -1,6 +1,6 @@
 # VideoTape
 
-Capture and analyze frames from your applications and web-sites to find out how stable your animations, and how fast responses to gestures.
+Capture and analyze frames from your mobile and web applications to find out how stable your animations, and how fast responses to gestures.
 
 # Getting started
 
