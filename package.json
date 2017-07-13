@@ -1,6 +1,6 @@
 {
 	"name": "videotape",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"scripts": {
 		"start": "node node_modules/react-native-macos/local-cli/cli.js start",
 		"macos": "react-native-macos run-macos",

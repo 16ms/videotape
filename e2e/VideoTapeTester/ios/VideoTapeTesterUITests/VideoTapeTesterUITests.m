@@ -9,6 +9,8 @@
 #import <XCTest/XCTest.h>
 #import <UIKit/UIKit.h>
 
+#define TARGET_SCORE 0.75
+
 @interface VideoTapeTesterUITests : XCTestCase
 
 @end
@@ -74,6 +76,7 @@
   [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
   [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
   [request setHTTPBody:postData];
+  dispatch_semaphore_t    sem =  dispatch_semaphore_create(0);;
   NSURLSessionDataTask *task = [[NSURLSession sharedSession]
       dataTaskWithRequest:request
         completionHandler:^(NSData *data, NSURLResponse *response,
@@ -81,18 +84,20 @@
           XCTAssertNil(error, @"Http request to videotape should be null");
           if (checkAnswer) {
             XCTAssertNotNil(data, @"Response should not be null");
-            NSLog(@"data: %@", data);
             error = nil;
             if (data) {
               NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
               XCTAssertNil(error, @"Http request to videotape should be null");
               XCTAssertNotNil(dictionary[@"score"]);
-              XCTAssert([dictionary[@"score"] floatValue] > 0.9);
+              NSLog(@"result: %@", dictionary);
+              XCTAssert([dictionary[@"score"] floatValue] > TARGET_SCORE);
             }
           }
+          dispatch_semaphore_signal(sem);
     }];
   [task resume];
-  sleep(0.3);
+  dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+  return;
 }
 
 @end

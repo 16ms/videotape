@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const RELEASE = process.env.NODE_ENV === 'production' || false;
+const RELEASE = process.env.NODE_ENV === 'production' || true;
 
 const cliArgs = process.argv.slice(2);
 
