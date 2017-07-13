@@ -1,0 +1,7 @@
+/*
+@providesModule fs
+*/
+
+module.exports = {
+  
+}

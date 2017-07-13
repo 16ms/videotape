@@ -1,0 +1,7 @@
+/*
+@providesModule path
+*/
+
+module.exports = {
+
+}

@@ -1,0 +1,26 @@
+language: objective-c
+osx_image: xcode8.3
+
+install:
+  - brew install node
+  - rm -Rf "${TMPDIR}/jest_preprocess_cache"
+  - npm install yarn -g
+  - yarn
+  - brew install caskroom/cask/brew-cask
+  - brew cask install vlc
+
+script: ./e2e/test
+  - if [[ "$TEST_TYPE" = e2e-ios ]]; then travis_retry travis_wait ./e2e/e2e-ios.sh test; fi
+  - if [[ "$TEST_TYPE" = e2e-movie ]]; then travis_retry travis_wait ./e2e/e2e-movie.sh test; fi
+  - if [[ "$TEST_TYPE" = jest ]]; then npm run test; fi
+
+matrix:
+  - fast_finish: true # Fail the whole build as soon as one test type fails. Should help with Travis capacity issues (very long queues).
+
+env:
+  - TEST_TYPE=e2e-ios
+  - TEST_TYPE=e2e-movie
+  - TEST_TYPE=jest
+
+# enable container-based infrastructure
+sudo: false
