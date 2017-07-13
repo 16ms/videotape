@@ -9,7 +9,7 @@ install:
   - brew install caskroom/cask/brew-cask
   - brew cask install vlc
 
-script: ./e2e/test
+script: 
   - if [[ "$TEST_TYPE" = e2e-ios ]]; then travis_retry travis_wait ./e2e/e2e-ios.sh test; fi
   - if [[ "$TEST_TYPE" = e2e-movie ]]; then travis_retry travis_wait ./e2e/e2e-movie.sh test; fi
   - if [[ "$TEST_TYPE" = jest ]]; then npm run test; fi
