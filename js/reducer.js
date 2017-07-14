@@ -8,7 +8,13 @@ export const Actions = {
   UPDATE_SETTINGS: 'UPDATE_SETTINGS',
 };
 
-export default function reducer(state, action) {
+type MainState = any;
+type Action = {
+  type: string,
+  payload: any,
+};
+
+export default function reducer(state: MainState, action: Adction) {
   console.log('reducer for action =>', action);
   switch (action.type) {
     case Actions.UPDATE_SETTINGS:

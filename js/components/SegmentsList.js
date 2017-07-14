@@ -9,26 +9,22 @@ import {
   TouchableHighlight,
 } from 'react-native';
 import { format, differenceInDays } from 'date-fns';
-
-function trim(frames) {
-  return frames.slice(1, -1);
-}
+import { calculateStability, calculateLatency } from '../metrics';
 
 function extractMetadataTitle({ fps, framesMetadata }) {
-  const frames = trim(framesMetadata);
-  const droppedFrames = frames.filter(f => !f.diff).length;
-  const naiveFPS = fps * (frames.length - droppedFrames) / frames.length;
-  return `${Math.round(
+  return `\t${Math.round(
     framesMetadata.length * 1000 / 60
-  )} ms, fps: ${Math.round(naiveFPS)}`;
+  )} ms\t score ${Math.round(
+    calculateStability({ framesMetadata }) * 100
+  )}% / ${Math.round(calculateLatency({ framesMetadata }) * 100)}%`;
 }
 
 function formatDate(seconds) {
   const date = new Date(seconds * 1000);
-  if (differenceInDays(date, new Date()) < 1) {
+  if (differenceInDays(new Date(), date) < 1) {
     return format(date, 'HH:mm');
   }
-  return format(date, 'HH:mm DD/MM/YY');
+  return format(date, 'DD/MM/YY');
 }
 
 export default ({
@@ -64,7 +60,7 @@ export default ({
             {item.title}
           </Text>
           <Text style={styles.itemSubtitle}>
-            {formatDate(item.createdAt)}, {extractMetadataTitle(item)}
+            {formatDate(item.createdAt)}{extractMetadataTitle(item)}
           </Text>
         </TouchableOpacity>}
     />

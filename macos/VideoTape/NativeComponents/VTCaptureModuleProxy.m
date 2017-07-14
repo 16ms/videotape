@@ -60,6 +60,7 @@ RCT_EXPORT_METHOD(writeToStdout:(NSString *)log)
 
 RCT_EXPORT_METHOD(setSettings:(NSDictionary *)settings)
 {
+  [toolbar.captureModule mergeSettings:settings];
   if (![toolbar.capturingStatusComponent tryToSetTargetProcess:settings[@"appName"]]) {
     [self stopCapturing];
     [self
@@ -71,11 +72,9 @@ RCT_EXPORT_METHOD(setSettings:(NSDictionary *)settings)
                                     settings[@"appName"]]
                           }];
   } else {
-    [toolbar.captureToggle setEnabled:YES];
     if ([settings[@"autorun"] boolValue]) {
       [self startCapturing];
     }
-    [toolbar.captureModule mergeSettings:settings];
   }
 }
 
@@ -87,6 +86,9 @@ RCT_EXPORT_METHOD(setSettings:(NSDictionary *)settings)
 - (void)onSettingsChange:(NSDictionary *)settings
 {
   [self sendEventWithName:@"onSettingsChange" body:settings];
+  if (toolbar.captureModule.pid > 0) {
+    [toolbar.captureToggle setEnabled:YES];
+  }
 }
 
 - (void)onCapturingStateChange:(CapturingState)capturingState body:(NSDictionary *)body

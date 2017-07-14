@@ -1,4 +1,3 @@
-/* @flow */
 import addMetrics, { calculateStability, calculateLatency } from './index';
 
 test('returns zero if there is no frames metadata', () => {

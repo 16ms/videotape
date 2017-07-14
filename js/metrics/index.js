@@ -2,11 +2,8 @@
 import { type SegmentProps } from '../types';
 
 const LATENCY_THREUSHOLD_FRAMES = 2;
-/*
- *  Higher stability means lower amount flakiness
- *  Less dropped frames
- */
-export function calculateStability({ framesMetadata }: SegmentProps) {
+
+export function extractFrames(framesMetadata) {
   // TODO: functional approach?
   let startIndex = 0;
   while (
@@ -19,7 +16,14 @@ export function calculateStability({ framesMetadata }: SegmentProps) {
   while (!framesMetadata[endIndex].diff && endIndex > 0) {
     endIndex--;
   }
-  const frames = framesMetadata.slice(startIndex, endIndex + 1);
+  return framesMetadata.slice(startIndex, endIndex + 1);
+}
+/*
+ *  Higher stability means lower amount flakiness
+ *  Less dropped frames
+ */
+export function calculateStability({ framesMetadata }: SegmentProps) {
+  const frames = extractFrames(framesMetadata);
 
   if (frames.length === 0) {
     return 1;
