@@ -218,6 +218,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
                                               [NSEvent mouseLocation].x - input.cropRect.origin.x,
                                               [NSEvent mouseLocation].y - input.cropRect.origin.y);
   
+  if (mouseState > 0) {
+    NSLog(@"mouseState!");
+  }
+  
   __block NSImage *image = [self imageFromSampleBuffer:sampleBuffer];
   dispatch_async(framesQueue, ^{
     if (prevframe != nil && prevframe.size.width > 0) {
@@ -236,18 +240,18 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         similarPreviousFrames = 0;
       }
       
-      // One of the following should be true to start process captured data:
+      // One of the following should be true to finish recording
+      // and start processing captured data:
       // 1. similarPreviousFrames gets bigger than certain amount of frames
       //    (PAUSE_THRESHOLD which can be 3 frames or more)
       // 2. We're overcoming the limit set by settings (e.g. 100 frames) for
       //    an infinite animation
+
       //
-      // NSLog(@"%i %li", totalPreviousFrames, [self.settings[@"framesLimitPerSegment"] integerValue]);
       if ((framesIndex >= 0 &&
            similarPreviousFrames > PAUSE_THRESHOLD &&
-           totalPreviousFrames > similarPreviousFrames + 10) ||
-          (totalPreviousFrames > [self.settings[@"framesLimitPerSegment"] integerValue]) ||
-          (mouseState > 1 && [framesStorage objectAtIndex:prevFramesIndex].touch == 0)) {
+           totalPreviousFrames > similarPreviousFrames + 10 && mouseState == 0) ||
+          (totalPreviousFrames > [self.settings[@"framesLimitPerSegment"] integerValue])) {
         [self processCapturedFrames];
         similarPreviousFrames = 0;
         totalPreviousFrames = 0;
