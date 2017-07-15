@@ -37,6 +37,9 @@ export default class VideoTapeApp extends Component {
     this.resettingAttempts = 0;
   }
   state: AppState;
+  args: Object;
+  resettingAttempts: number;
+  resettingTimeout: number;
 
   dispatch(action: { type: string, payload: any }) {
     clearTimeout(this.resettingTimeout);

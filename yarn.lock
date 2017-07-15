@@ -1535,6 +1535,10 @@ find-up@^2.0.0, find-up@^2.1.0:
   dependencies:
     locate-path "^2.0.0"
 
+flow-bin@^0.50.0:
+  version "0.50.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.50.0.tgz#d4cdb2430dee1a3599f0eb6fe551146e3027256a"
+
 for-in@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/for-in/-/for-in-1.0.2.tgz#81068d295a8142ec0ac726c6e2200c30fb6d5e80"
@@ -3054,13 +3058,13 @@ react-devtools-core@^2.0.8:
     shell-quote "^1.6.1"
     ws "^2.0.3"
 
-react-native-http-bridge@^0.4.1:
+react-native-http-bridge@16ms/react-native-http-bridge:
   version "0.4.1"
-  resolved "https://registry.yarnpkg.com/react-native-http-bridge/-/react-native-http-bridge-0.4.1.tgz#d120a25b23fb98ec708def75fef5489d79173e81"
+  resolved "https://codeload.github.com/16ms/react-native-http-bridge/tar.gz/e9964963c3211cc03c40a0569fb408f7ce0ff811"
 
-react-native-macos@0.15.2:
-  version "0.15.2"
-  resolved "https://registry.yarnpkg.com/react-native-macos/-/react-native-macos-0.15.2.tgz#14d1e57bfa005a70f33ace134f1f8b2b2b879c57"
+react-native-macos@^0.15.3:
+  version "0.15.3"
+  resolved "https://registry.yarnpkg.com/react-native-macos/-/react-native-macos-0.15.3.tgz#333ee90b12a18237aece93cdd2685a04841b5982"
   dependencies:
     absolute-path "^0.0.0"
     art "^0.10.0"

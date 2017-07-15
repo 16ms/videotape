@@ -10,17 +10,14 @@ install:
   - brew cask install vlc
 
 script:
-  - npm run build
-  - if [[ "$TEST_TYPE" = e2e-ios ]]; then travis_retry travis_wait ./e2e/test-ios.sh; fi
-  - if [[ "$TEST_TYPE" = e2e-movie ]]; then travis_retry travis_wait ./e2e/test-movie.sh; fi
+  - if [[ "$TEST_TYPE" = e2e ]]; then travis_retry travis_wait ./e2e/test.sh; fi
   - if [[ "$TEST_TYPE" = jest ]]; then npm run test; fi
 
 matrix:
   - fast_finish: true # Fail the whole build as soon as one test type fails. Should help with Travis capacity issues (very long queues).
 
 env:
-  - TEST_TYPE=e2e-ios
-  - TEST_TYPE=e2e-movie
+  - TEST_TYPE=e2e
   - TEST_TYPE=jest
 
 # enable container-based infrastructure

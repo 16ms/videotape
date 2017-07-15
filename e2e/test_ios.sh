@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # run videotape with http server
-videotape --target=Simulator --http=true &
+node cli/videotape.js --target=Simulator --http=true &
 
 # TODO: move to xcbuild + xctool
 xcodebuild \
