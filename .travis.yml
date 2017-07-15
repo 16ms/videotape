@@ -10,8 +10,9 @@ install:
   - brew cask install vlc
 
 script:
-  - if [[ "$TEST_TYPE" = e2e-ios ]]; then travis_retry travis_wait ./e2e/e2e-ios.sh; fi
-  - if [[ "$TEST_TYPE" = e2e-movie ]]; then travis_retry travis_wait ./e2e/e2e-movie.sh; fi
+  - npm run build
+  - if [[ "$TEST_TYPE" = e2e-ios ]]; then travis_retry travis_wait ./e2e/test-ios.sh; fi
+  - if [[ "$TEST_TYPE" = e2e-movie ]]; then travis_retry travis_wait ./e2e/test-movie.sh; fi
   - if [[ "$TEST_TYPE" = jest ]]; then npm run test; fi
 
 matrix:
