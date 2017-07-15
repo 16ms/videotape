@@ -22,22 +22,24 @@ import addMetrics from './metrics';
 
 import { type AppState } from './types';
 
-const STORAGE_KEY = 'default_project_storage';
+const STORAGE_KEY = 'default_storage';
 
 export default class VideoTapeApp extends Component {
   constructor() {
     super();
     this.state = {
-      projects: [{ title: 'Default', appName: 'Simulator', uuid: 0 }],
+      projects: [{ title: 'Untitled', appName: 'Simulator', uuid: 0 }],
       selectedProject: 0,
       segments: [],
       selectedSegment: null,
     };
     this.args = this.argsFromCli();
+    this.resettingAttempts = 0;
   }
   state: AppState;
 
   dispatch(action: { type: string, payload: any }) {
+    clearTimeout(this.resettingTimeout);
     this.setState(
       prevState => reducer(prevState, action),
       () => this.save(action.type)
@@ -110,13 +112,14 @@ export default class VideoTapeApp extends Component {
     CaptureModule.onCapturingStateChange(event => {
       if (event.capturingState === 'error') {
         //
-        if (this.args.autorun && this.resettingTries > 5) {
+        if (this.args.autorun && this.resettingAttempts > 5) {
           CaptureModule.log(`Error: ${event.body.error}`);
           process.exit(1);
         } else {
+          this.resettingAttempts++;
           this.resettingTimeout = setTimeout(
             () => CaptureModule.setSettings(this.state.projects[0]),
-            200
+            1000
           );
         }
       }
