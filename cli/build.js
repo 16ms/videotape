@@ -40,11 +40,11 @@ const steps = [
     -scheme VideoTape \
     -project ${PROJECT_PATH} \
     -archivePath ${path.join(buildDir, 'videotape.xcarchive')} \
-    archive`,
+    archive | xcpretty && exit $\{PIPESTATUS[0]\}`,
   `xcodebuild \
     -exportArchive \
     -exportOptionsPlist ${path.join('cli', 'VideoTape.plist')} \
     -archivePath ${path.join(buildDir, 'videotape.xcarchive')} \
-    -exportPath ${buildDir}`,
+    -exportPath ${buildDir} | xcpretty && exit $\{PIPESTATUS[0]\}`,
 ];
 steps.forEach(step => execSync(step, { stdio: [0, 1, 2] }));

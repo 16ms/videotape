@@ -49,7 +49,7 @@ vt.stderr.on('data', data => {
 });
 
 vt.on('close', code => {
-  if (code !== 0) {
+  if (code) {
     console.log(`VideoTape process exited with code ${code}`);
   }
   process.exit(code || 0);
