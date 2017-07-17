@@ -50,7 +50,7 @@ export default ({ segment }: { segment: SegmentProps }) =>
           />
         </TouchableOpacity>
       : <ActivityIndicator />}
-    <Text>{JSON.stringify(segment)}</Text>
+    {/* <Text>{JSON.stringify(segment)}</Text> */}
   </ScrollView>;
 
 const styles = StyleSheet.create({

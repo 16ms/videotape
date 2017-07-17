@@ -9,14 +9,13 @@ import {
   TouchableHighlight,
 } from 'react-native';
 import { format, differenceInDays } from 'date-fns';
-import { calculateStability, calculateLatency } from '../metrics';
+import addMetrics from '../metrics';
 
 function extractMetadataTitle({ fps, framesMetadata }) {
-  return `\t${Math.round(
+  const score = addMetrics({ framesMetadata }).score || 0;
+  return `  ${Math.round(
     framesMetadata.length * 1000 / 60
-  )} ms\t score ${Math.round(
-    calculateStability({ framesMetadata }) * 100
-  )}% / ${Math.round(calculateLatency({ framesMetadata }) * 100)}%`;
+  )}ms  score: ${Math.round(score * 100)}%`;
 }
 
 function formatDate(seconds) {
@@ -70,7 +69,7 @@ const styles = StyleSheet.create({
   container: {
     borderRightWidth: 1, // StyleSheet.hairlineWidth,
     borderRightColor: '#E6E6E6',
-    width: '40%',
+    width: '35%',
     backgroundColor: 'white',
   },
   separator: {
@@ -85,7 +84,7 @@ const styles = StyleSheet.create({
   },
   itemTitle: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#464646',
   },
   itemSubtitle: {

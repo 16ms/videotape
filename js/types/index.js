@@ -12,13 +12,13 @@ export type ScoreDetails = {
 };
 
 export type SegmentProps = {
-  uuid: string,
+  uuid?: string,
   framesMetadata: Array<FrameProps>,
-  inputFrame: any,
+  inputFrame?: any,
   snapshotURL?: string,
   movieURL?: string,
   score?: number,
-  scoreDetails: ScoreDetails,
+  scoreDetails?: ScoreDetails,
 };
 
 export type AppState = {

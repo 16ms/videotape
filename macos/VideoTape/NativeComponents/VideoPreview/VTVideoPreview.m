@@ -10,8 +10,7 @@
 - (instancetype)init
 {
   if ((self = [super init])) {
-    //[self setControlsStyle:AVPlayerViewControlsStyleNone];
-    [self setControlsStyle:AVPlayerViewControlsStyleMinimal];
+    [self setControlsStyle:AVPlayerViewControlsStyleInline];
     self.layer.backgroundColor = [NSColor whiteColor].CGColor;
   }
   return self;

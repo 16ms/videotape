@@ -3,7 +3,7 @@ import { type SegmentProps } from '../types';
 
 const LATENCY_THREUSHOLD_FRAMES = 2;
 
-export function extractFrames(framesMetadata) {
+export function extractFrames(framesMetadata: any) {
   // TODO: functional approach?
   let startIndex = 0;
   while (

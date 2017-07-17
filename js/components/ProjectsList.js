@@ -19,6 +19,14 @@ export default ({
     renderItem={({ item }) =>
       <View
         key={item.uuid}
+        contextMenu={[
+          { title: 'Rename Project' },
+          { title: 'Clear Project' },
+          { isSeparator: true },
+          { title: 'Delete Project', key: 'd' },
+        ]}
+        onContextMenuItemClick={({ nativeEvent: { menuItem } }) =>
+          alert('Not Implemented yet')}
         style={[
           styles.projectWrapper,
           selectedProject === item.uuid ? styles.highlighted : {},
