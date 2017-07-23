@@ -22,7 +22,7 @@ import addMetrics from './metrics';
 
 import { type AppState } from './types';
 
-const STORAGE_KEY = 'default_storage';
+const STORAGE_KEY = 'storage.key';
 
 export default class VideoTapeApp extends Component {
   constructor() {
@@ -70,8 +70,11 @@ export default class VideoTapeApp extends Component {
   }
 
   async init() {
-    if (this.args.http) {
+    if (this.args.http || __DEV__) {
       httpBridge.start(5561, 'incoming', request => {
+        if (request.postData.type === 'STATUS') {
+          httpBridge.respond(200);
+        }
         if (request.postData.type === 'START_CAPTURING') {
           CaptureModule.startCapturing();
           httpBridge.respond(200);
@@ -86,6 +89,13 @@ export default class VideoTapeApp extends Component {
             'application/json',
             JSON.stringify(addMetrics(this.state.segments[0]))
           );
+        }
+        if (request.postData.type === 'RECORD_TOUCH_EVENT') {
+          CaptureModule.recordTouchEvent(request.postData.event);
+          httpBridge.respond(200);
+        }
+        if (request.postData.type === 'EXIT') {
+          process.exit(0);
         }
       });
     }

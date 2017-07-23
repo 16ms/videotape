@@ -25,6 +25,10 @@ export function stopCapturing() {
   VTCaptureModuleProxy.stopCapturing();
 }
 
+export function recordTouchEvent(event: any) {
+  VTCaptureModuleProxy.recordTouchEvent(event);
+}
+
 export function log(json: string) {
   VTCaptureModuleProxy.writeToStdout(json);
 }

@@ -8,30 +8,20 @@
 #import "FramesStorage.h"
 #import "WindowList.h"
 
-//typedef union {
-//  uint32_t raw;
-//  unsigned char bytes[4];
-//  struct {
-//    char red;
-//    char green;
-//    char blue;
-//    char alpha;
-//  } __attribute__ ((packed)) pixels;
-//} FBComparePixel;
-
 @implementation CaptureModule {
-  Float64 prevTime;
   NSImage* prevframe;
   NSRunningApplication *capturingApp;
   AVCaptureSession *session;
   long framesIndex;
   long prevFramesIndex;
   FramesStorage *framesStorage;
-  dispatch_queue_t framesQueue;
+  dispatch_queue_t framesMainQueue;
+  dispatch_queue_t framesAdditionalQueue;
   NSTimer *timer;
   AVCaptureScreenInput *input;
   int similarPreviousFrames;
   int totalPreviousFrames;
+  NSTimeInterval prevTimestamp;
 }
 
 
@@ -41,7 +31,7 @@
   if (self) {
     framesStorage = [[FramesStorage alloc] initWithCapacity:FRAMES_STORAGE_CAPACITY];
     self.settings = [[NSMutableDictionary alloc] init];
-    self.settings[@"framesLimitPerSegment"] = @(FRAMES_STORAGE_CAPACITY / 3);
+    self.settings[@"framesLimitPerSegment"] = @(2 * FRAMES_STORAGE_CAPACITY / 3);
     self.capturing = NO;
   }
    return self;
@@ -125,15 +115,17 @@
   session = [[AVCaptureSession alloc] init];
   
   // Set the session preset as you wish
-  session.sessionPreset = AVCaptureSessionPresetHigh;
+  session.sessionPreset = AVCaptureSessionPresetMedium;//AVCaptureSessionPresetHigh;
   
   CGDirectDisplayID displayId = kCGDirectMainDisplay;
+  
   
   input = [[AVCaptureScreenInput alloc] initWithDisplayID:displayId];
   input.minFrameDuration = CMTimeMake(1, FPS_INPUT);
   input.cropRect = ((NSValue *)windowState[@"bounds"]).rectValue;
   input.capturesCursor = NO; // no need to show a cursor here
   input.capturesMouseClicks = YES;
+  
   if ([session canAddInput:input]) {
     [session addInput:input];
   }
@@ -143,14 +135,29 @@
   output.alwaysDiscardsLateVideoFrames = NO;
   output.videoSettings = @{ (NSString *)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA) };
   
-  prevTime = 0.0f;
-  
-  [session startRunning];
+  //    AVCaptureMovieFileOutput *mMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
+  //    if ([session canAddOutput:mMovieFileOutput])
+  //        [session addOutput:mMovieFileOutput];
+  //    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+  //    NSString *docDir = [paths objectAtIndex:0];
+  //    NSString *destPath = [docDir stringByAppendingPathComponent:@"log.mov"];
+  //    if ([[NSFileManager defaultManager] fileExistsAtPath:destPath])
+  //    {
+  //        NSError *err;
+  //        if (![[NSFileManager defaultManager] removeItemAtPath:destPath error:&err])
+  //        {
+  //            NSLog(@"Error deleting existing movie %@", [err localizedDescription]);
+  //        }
+  //    }
+
+
   
   prevframe = [[NSImage alloc] init];
   
-  framesQueue = dispatch_queue_create("framesQueue", NULL);
-  [output setSampleBufferDelegate:self queue:framesQueue];
+  dispatch_queue_attr_t highPriorityAttr = dispatch_queue_attr_make_with_qos_class (DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED,-1);
+  framesMainQueue = dispatch_queue_create("VideoTape.framesMainQueue", highPriorityAttr);
+  framesAdditionalQueue = dispatch_queue_create("VideoTape.framesAdditionalQueue", NULL);
+  [output setSampleBufferDelegate:self queue:framesMainQueue];
   
   timer = [NSTimer scheduledTimerWithTimeInterval:1.0f
                                    target:self
@@ -158,8 +165,10 @@
                                  userInfo:nil
                                   repeats:YES];
   
+  [session startRunning];
   [self.delegate onCapturingStateChange:CapturingStarted body:nil];
   self.capturing = YES;
+  prevTimestamp = [[NSDate date] timeIntervalSince1970];
 }
 
 -(void)ensureAppIsOnTop
@@ -169,11 +178,12 @@
 
 -(void)stop
 {
-  self.capturing = NO;
-  [session stopRunning];
-  [timer invalidate];
-  [self.delegate onCapturingStateChange:CapturingInitialized body:nil];
-
+  if (self.capturing) {
+    self.capturing = NO;
+    [session stopRunning];
+    [timer invalidate];
+    [self.delegate onCapturingStateChange:CapturingInitialized body:nil];
+  }
 }
 
 - (void)checkCapturingAppStatus
@@ -193,64 +203,81 @@
   
 }
 
-- (void)captureOutput:(AVCaptureOutput *)captureOutput
-didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
-       fromConnection:(AVCaptureConnection *)connection
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didDropSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection NS_AVAILABLE(10_7, 6_0)
 {
   // TODO:
   // 1. Support for https://developer.apple.com/reference/coremedia/kcmsamplebufferattachmentkey_droppedframereason?language=objc
   //
-  CMTime presentationTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-  CMTime duration = CMSampleBufferGetOutputDuration(sampleBuffer);
-  
+  NSLog(@"Dropped!");
+}
+
+- (void)captureOutput:(AVCaptureOutput *)captureOutput
+didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
+       fromConnection:(AVCaptureConnection *)connection
+{
   // if the target process isn't  on the screen,
   // we can't capture the screen
   // because we use AVFoundation APIs
   if (!capturingApp || !capturingApp.isActive) {
+    [self processCapturedFrames];
+    similarPreviousFrames = 0;
+    totalPreviousFrames = 0;
+    prevFramesIndex = framesIndex;
     return;
   }
+  
   static mach_timebase_info_data_t    sTimebaseInfo;
   if ( sTimebaseInfo.denom == 0 ) {
     (void) mach_timebase_info(&sTimebaseInfo);
   }
+  // uint64_t started = mach_absolute_time();
+  // double time = (mach_absolute_time()) * sTimebaseInfo.numer / sTimebaseInfo.denom / 1000 / 1000 / 1000;
+ 
+  __block NSTimeInterval timestamp = [NSDate timeIntervalSinceReferenceDate] + NSTimeIntervalSince1970;
+  if ((timestamp - prevTimestamp) * 1000 > 2 / FPS_INPUT) {
+    NSLog(@"DEBUG Late frame: %ld %f", CMSampleBufferGetNumSamples(sampleBuffer), (timestamp - prevTimestamp) * 1000);
+   
+  }
+  prevTimestamp = timestamp;
+  
+  // CMTime presentationTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+  CMTime durationTime = CMSampleBufferGetDuration(sampleBuffer);
   __block NSUInteger mouseState = [NSEvent pressedMouseButtons];
   __block NSPoint mouseLocation = CGPointMake(
                                               [NSEvent mouseLocation].x - input.cropRect.origin.x,
                                               [NSEvent mouseLocation].y - input.cropRect.origin.y);
   
-  if (mouseState > 0) {
-    NSLog(@"mouseState!");
-  }
-  
-  __block NSImage *image = [self imageFromSampleBuffer:sampleBuffer];
-  dispatch_async(framesQueue, ^{
+  // uint64_t started = mach_absolute_time();
+  __block NSImage *image = [ImageProcessing imageFromSampleBuffer:sampleBuffer];
+  // double ms = (mach_absolute_time() - started) * sTimebaseInfo.numer / sTimebaseInfo.denom / 1000.0 / 1000.0;
+  // NSLog(@"image constructed in %f %lld", ms, mach_absolute_time() - started);
+  dispatch_async(framesAdditionalQueue, ^{
     if (prevframe != nil && prevframe.size.width > 0) {
       totalPreviousFrames++;
       NSBitmapImageRep* previous = (NSBitmapImageRep *) prevframe.representations[0];
       NSBitmapImageRep* current = (NSBitmapImageRep *) image.representations[0];
       
-      BOOL equalToPrevious = [self fb_compareWithImage:previous referenceImage:current tolerance:0];
+      BOOL equalToPrevious = [ImageProcessing compareBitmaps:previous referenceImage:current];
       
       // In order to detect pauses in frames movements we need to
       // store the total amount of similar frames
-      // That's how we can distinguish dropped frames from the pauses
-      if (equalToPrevious) {
+      // That's how we can naively distinguish dropped frames from the pauses
+      if (equalToPrevious && mouseState == 0) {
         similarPreviousFrames++;
       } else {
         similarPreviousFrames = 0;
       }
       
+      
+      // --- DETECT ENDING OF SEGMENT ---
       // One of the following should be true to finish recording
       // and start processing captured data:
-      // 1. similarPreviousFrames gets bigger than certain amount of frames
+      // 1. similarPreviousFrames getting bigger than certain amount of frames
       //    (PAUSE_THRESHOLD which can be 3 frames or more)
-      // 2. We're overcoming the limit set by settings (e.g. 100 frames) for
+      // 2. totalPreviousFrames overcoming the limit set by settings (e.g. 100 frames) for
       //    an infinite animation
-
-      //
-      if ((framesIndex >= 0 &&
-           similarPreviousFrames > PAUSE_THRESHOLD &&
-           totalPreviousFrames > similarPreviousFrames + 10 && mouseState == 0) ||
+      if ((similarPreviousFrames > PAUSE_THRESHOLD &&
+           totalPreviousFrames > similarPreviousFrames + CAPTURE_THRESHOLD && mouseState == 0) ||
           (totalPreviousFrames > [self.settings[@"framesLimitPerSegment"] integerValue])) {
         [self processCapturedFrames];
         similarPreviousFrames = 0;
@@ -259,22 +286,28 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         return;
       }
       
-      if (similarPreviousFrames > PAUSE_THRESHOLD) {
-        // too many similar frames in the row
-        // we're waiting for beginning of segment
+      // --- DETECT STARTING OF SEGMENT ---
+      // too many similar frames in the row
+      // we're waiting for beginning of segment
+      if (similarPreviousFrames >= totalPreviousFrames) {
+        if (totalPreviousFrames > 1) {
+          NSLog(@"DEBUG: Shouldn't intterrupt in the middle of segment %i %i", totalPreviousFrames, similarPreviousFrames);
+        }
         totalPreviousFrames = 1;
         return;
       }
+      
+      NSLog(@"FRAMES_INDEX %li %i %i", framesIndex, similarPreviousFrames, totalPreviousFrames);
       
       FrameWithMetadata *frame = [[FrameWithMetadata alloc] init];
       frame.image = image;
       frame.touch = mouseState;
       frame.diff = !equalToPrevious;
       frame.touchLocation = mouseLocation;
-      frame.presentationTime = presentationTime;
-      frame.duration = duration;
+      frame.timestamp = timestamp;
+      frame.presentationTime = durationTime;
       
-      [framesStorage addFrame:frame index:framesIndex];
+      [framesStorage updateFrame:frame index:framesIndex];
       
       if (framesIndex < FRAMES_STORAGE_CAPACITY) {
         framesIndex++;
@@ -282,120 +315,36 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         framesIndex = 0;
       }
       
+    } else {
+      NSLog(@"DEBUG: no prevImage!");
     }
     prevframe = image;
-    prevTime = CMTimeGetSeconds(presentationTime);
   });
 }
 
-- (NSImage *) imageFromSampleBuffer:(CMSampleBufferRef) sampleBuffer
+- (void)recordTouchEvent:(NSArray * _Nonnull)event
 {
-  // Get a CMSampleBuffer's Core Video image buffer for the media data
-  CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-  // Lock the base address of the pixel buffer
-  CVPixelBufferLockBaseAddress(imageBuffer, 0);
-  
-  // Get the number of bytes per row for the pixel buffer
-  void *baseAddress = CVPixelBufferGetBaseAddress(imageBuffer);
-  
-  // Get the number of bytes per row for the pixel buffer
-  size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
-  // Get the pixel buffer width and height
-  size_t width = CVPixelBufferGetWidth(imageBuffer);
-  size_t height = CVPixelBufferGetHeight(imageBuffer);
-  
-  // Create a device-dependent RGB color space
-  CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-  
-  // Create a bitmap graphics context with the sample buffer data
-  CGContextRef context = CGBitmapContextCreate(baseAddress, width, height, 8,
-                                               bytesPerRow, colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
-  // Create a Quartz image from the pixel data in the bitmap graphics context
-  CGImageRef quartzImage = CGBitmapContextCreateImage(context);
-  // Unlock the pixel buffer
-  CVPixelBufferUnlockBaseAddress(imageBuffer,0);
-  
-  // Free up the context and color space
-  CGContextRelease(context);
-  CGColorSpaceRelease(colorSpace);
-  
-  if (!quartzImage) {
-    NSLog(@"can't do cgimage");
-    return nil;
+  if (!self.capturing) {
+    return;
   }
-  
-  // Create an image object from the Quartz image
-  NSBitmapImageRep *bitmapRep = [[NSBitmapImageRep alloc] initWithCGImage:quartzImage];
-  // Create an NSImage and add the bitmap rep to it...
-  NSImage *image = [[NSImage alloc] init];
-  [image addRepresentation:bitmapRep];
-  
-  // Release the Quartz image
-  CGImageRelease(quartzImage);
-  
-  return (image);
-}
-
-- (BOOL)fb_compareWithImage:(NSBitmapImageRep *)image referenceImage:(NSBitmapImageRep *)referenceImage tolerance:(CGFloat)tolerance
-{
-  // NSAssert(CGSizeEqualToSize(self.size, image.size), @"Images must be same size.");
-  
-  CGSize referenceImageSize = CGSizeMake(CGImageGetWidth(referenceImage.CGImage), CGImageGetHeight(referenceImage.CGImage));
-  CGSize imageSize = CGSizeMake(CGImageGetWidth(image.CGImage), CGImageGetHeight(image.CGImage));
-  
-  // The images have the equal size, so we could use the smallest amount of bytes because of byte padding
-  size_t minBytesPerRow = MIN(CGImageGetBytesPerRow(referenceImage.CGImage), CGImageGetBytesPerRow(image.CGImage));
-  size_t referenceImageSizeBytes = referenceImageSize.height * minBytesPerRow;
-  void *referenceImagePixels = calloc(1, referenceImageSizeBytes);
-  void *imagePixels = calloc(1, referenceImageSizeBytes);
-  
-  if (!referenceImagePixels || !imagePixels) {
-    free(referenceImagePixels);
-    free(imagePixels);
-    return NO;
+  for (int i =0; i < event.count; i++) {
+    NSDictionary *touchData = event[i];
+    // search buffer for right timestamp
+    for (int j = 0; j < framesStorage.count; j++) {
+   
+      FrameWithMetadata *frame = [framesStorage objectAtIndex:j];
+      
+      NSTimeInterval diff = [touchData[@"timestamp"] floatValue] - frame.timestamp * 1000;
+        NSLog(@"RECORD TOUCH: %f %f %f", [touchData[@"timestamp"] floatValue], frame.timestamp * 1000, diff);
+      if (diff >= 0 && diff < 1 / FPS_INPUT) {
+        // set touch state and put it back to buffer storage
+        frame.touch = 1;
+        frame.touchLocation = NSMakePoint([touchData[@"x"] floatValue], [touchData[@"y"] floatValue]);
+        [framesStorage updateFrame:frame index:j];
+        break;
+      }
+    }
   }
-  
-  CGContextRef referenceImageContext = CGBitmapContextCreate(referenceImagePixels,
-                                                             referenceImageSize.width,
-                                                             referenceImageSize.height,
-                                                             CGImageGetBitsPerComponent(referenceImage.CGImage),
-                                                             minBytesPerRow,
-                                                             CGImageGetColorSpace(referenceImage.CGImage),
-                                                             (CGBitmapInfo)kCGImageAlphaPremultipliedLast
-                                                             );
-  CGContextRef imageContext = CGBitmapContextCreate(imagePixels,
-                                                    imageSize.width,
-                                                    imageSize.height,
-                                                    CGImageGetBitsPerComponent(image.CGImage),
-                                                    minBytesPerRow,
-                                                    CGImageGetColorSpace(image.CGImage),
-                                                    (CGBitmapInfo)kCGImageAlphaPremultipliedLast
-                                                    );
-  
-  if (!referenceImageContext || !imageContext) {
-    CGContextRelease(referenceImageContext);
-    CGContextRelease(imageContext);
-    free(referenceImagePixels);
-    free(imagePixels);
-    return NO;
-  }
-  
-  CGContextDrawImage(referenceImageContext, CGRectMake(0, 0, referenceImageSize.width, referenceImageSize.height), referenceImage.CGImage);
-  CGContextDrawImage(imageContext, CGRectMake(0, 0, imageSize.width, imageSize.height), image.CGImage);
-  
-  CGContextRelease(referenceImageContext);
-  CGContextRelease(imageContext);
-  
-  BOOL imageEqual = YES;
-  
-  // Do a fast compare if we can
-  //if (tolerance == 0) {
-  imageEqual = (memcmp(referenceImagePixels, imagePixels, referenceImageSizeBytes) == 0);
-  
-  free(referenceImagePixels);
-  free(imagePixels);
-  
-  return imageEqual;
 }
 
 - (void)processCapturedFrames
@@ -407,19 +356,21 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 
   FramesStorage *framesToExport = [[FramesStorage alloc] init];
   NSMutableArray *metadataToExport = [[NSMutableArray alloc] init];
+  int meaningfulFrames = 0;
 
   long ringBufferIndex = framesIndex > totalPreviousFrames ?
-  framesIndex - totalPreviousFrames :
-  FRAMES_STORAGE_CAPACITY - (totalPreviousFrames - framesIndex);
+    framesIndex - totalPreviousFrames :
+    FRAMES_STORAGE_CAPACITY - (totalPreviousFrames - framesIndex);
   
   // throw away last frames, because they are same
   // except the very last one
-  totalPreviousFrames = totalPreviousFrames - PAUSE_THRESHOLD + 1;
+  // totalPreviousFrames = totalPreviousFrames - PAUSE_THRESHOLD + 1;
   while (totalPreviousFrames > 0) {
     FrameWithMetadata *frame = [framesStorage objectAtIndex:ringBufferIndex];
     NSDictionary *frameMetadata = @{
                                     @"touch": @(frame.touch),
                                     @"diff": @(frame.diff),
+                                    @"time": @(frame.timestamp),
                                     };
     
     ringBufferIndex++;
@@ -429,12 +380,20 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     totalPreviousFrames--;
     [framesToExport addFrame:frame];
     [metadataToExport addObject:frameMetadata];
+    if (frame.touch > 0 || frame.diff) {
+      meaningfulFrames++;
+    }
   }
   
   if (framesToExport.count < PAUSE_THRESHOLD) {
     // empty segment
     return;
   }
+  if (meaningfulFrames < framesToExport.count / 2) {
+    // almost empty segment
+    return;
+  }
+
   
   NSString *uuid = [[NSUUID UUID] UUIDString];
   [self.delegate

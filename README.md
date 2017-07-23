@@ -2,12 +2,15 @@
 
 Capture and analyze frames from your mobile and web applications to find out how stable your animations, and how fast responses to gestures.
 
-# Getting started
-
 ```
 npm install -g videotape
-videotape --target=Simulator --autorun
 ```
+
+## Dropped frames
+
+## Latency
+
+## License
 
 MIT License
 

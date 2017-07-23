@@ -78,6 +78,11 @@ RCT_EXPORT_METHOD(setSettings:(NSDictionary *)settings)
   }
 }
 
+RCT_EXPORT_METHOD(recordTouchEvent:(NSArray *)event)
+{
+  [toolbar.captureModule recordTouchEvent:event];
+}
+
 - (NSArray<NSString *> *)supportedEvents
 {
   return @[@"onSettingsChange", @"onCapturingStateChange"];

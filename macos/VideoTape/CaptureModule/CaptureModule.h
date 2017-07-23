@@ -29,6 +29,7 @@ typedef NS_ENUM(NSInteger, CapturingState) {
 - (NSInteger)findPIDByAppName:(NSString*_Nonnull)appName;
 - (void)mergeSettings:(NSDictionary*_Nonnull)newSettings;
 - (BOOL)setTargetProcessByPID:(NSUInteger)pid;
+- (void)recordTouchEvent:(NSArray * _Nonnull)event;
 - (void)start;
 - (void)stop;
 
