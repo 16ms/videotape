@@ -26,6 +26,115 @@ typedef union {
 
 @implementation ImageProcessing
 
++ (NSImage *)imageFromSampleBuffer:(CMSampleBufferRef) sampleBuffer
+{
+  // Get a CMSampleBuffer's Core Video image buffer for the media data
+  CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+  // Lock the base address of the pixel buffer
+  CVPixelBufferLockBaseAddress(imageBuffer, 0);
+  
+  // Get the number of bytes per row for the pixel buffer
+  void *baseAddress = CVPixelBufferGetBaseAddress(imageBuffer);
+  
+  // Get the number of bytes per row for the pixel buffer
+  size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+  // Get the pixel buffer width and height
+  size_t width = CVPixelBufferGetWidth(imageBuffer);
+  size_t height = CVPixelBufferGetHeight(imageBuffer);
+  
+  // Create a device-dependent RGB color space
+  CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+  
+  // Create a bitmap graphics context with the sample buffer data
+  CGContextRef context = CGBitmapContextCreate(baseAddress, width, height, 8,
+                                               bytesPerRow, colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
+  // Create a Quartz image from the pixel data in the bitmap graphics context
+  CGImageRef quartzImage = CGBitmapContextCreateImage(context);
+  // Unlock the pixel buffer
+  CVPixelBufferUnlockBaseAddress(imageBuffer,0);
+  
+  // Free up the context and color space
+  CGContextRelease(context);
+  CGColorSpaceRelease(colorSpace);
+  
+  if (!quartzImage) {
+    NSLog(@"Can't do cgimage based on this sample buffer");
+    return nil;
+  }
+  
+  // Create an image object from the Quartz image
+  NSBitmapImageRep *bitmapRep = [[NSBitmapImageRep alloc] initWithCGImage:quartzImage];
+  // Create an NSImage and add the bitmap rep to it...
+  NSImage *image = [[NSImage alloc] init];
+  [image addRepresentation:bitmapRep];
+  
+  // Release the Quartz image
+  CGImageRelease(quartzImage);
+  
+  return (image);
+}
+
++ (BOOL)compareBitmaps:(NSBitmapImageRep *)image referenceImage:(NSBitmapImageRep *)referenceImage
+{
+  // Original code is copyright by Facebook
+  NSAssert(CGSizeEqualToSize(image.size, referenceImage.size), @"Images must be same size.");
+  
+  CGSize referenceImageSize = CGSizeMake(CGImageGetWidth(referenceImage.CGImage), CGImageGetHeight(referenceImage.CGImage));
+  CGSize imageSize = CGSizeMake(CGImageGetWidth(image.CGImage), CGImageGetHeight(image.CGImage));
+  
+  // The images have the equal size, so we could use the smallest amount of bytes because of byte padding
+  size_t minBytesPerRow = MIN(CGImageGetBytesPerRow(referenceImage.CGImage), CGImageGetBytesPerRow(image.CGImage));
+  size_t referenceImageSizeBytes = referenceImageSize.height * minBytesPerRow;
+  void *referenceImagePixels = calloc(1, referenceImageSizeBytes);
+  void *imagePixels = calloc(1, referenceImageSizeBytes);
+  
+  if (!referenceImagePixels || !imagePixels) {
+    free(referenceImagePixels);
+    free(imagePixels);
+    return NO;
+  }
+  
+  CGContextRef referenceImageContext = CGBitmapContextCreate(referenceImagePixels,
+                                                             referenceImageSize.width,
+                                                             referenceImageSize.height,
+                                                             CGImageGetBitsPerComponent(referenceImage.CGImage),
+                                                             minBytesPerRow,
+                                                             CGImageGetColorSpace(referenceImage.CGImage),
+                                                             (CGBitmapInfo)kCGImageAlphaPremultipliedLast
+                                                             );
+  CGContextRef imageContext = CGBitmapContextCreate(imagePixels,
+                                                    imageSize.width,
+                                                    imageSize.height,
+                                                    CGImageGetBitsPerComponent(image.CGImage),
+                                                    minBytesPerRow,
+                                                    CGImageGetColorSpace(image.CGImage),
+                                                    (CGBitmapInfo)kCGImageAlphaPremultipliedLast
+                                                    );
+  
+  if (!referenceImageContext || !imageContext) {
+    CGContextRelease(referenceImageContext);
+    CGContextRelease(imageContext);
+    free(referenceImagePixels);
+    free(imagePixels);
+    return NO;
+  }
+  
+  CGContextDrawImage(referenceImageContext, CGRectMake(0, 0, referenceImageSize.width, referenceImageSize.height), referenceImage.CGImage);
+  CGContextDrawImage(imageContext, CGRectMake(0, 0, imageSize.width, imageSize.height), image.CGImage);
+  
+  CGContextRelease(referenceImageContext);
+  CGContextRelease(imageContext);
+  
+  BOOL imageEqual = YES;
+  
+  imageEqual = (memcmp(referenceImagePixels, imagePixels, referenceImageSizeBytes) == 0);
+  
+  free(referenceImagePixels);
+  free(imagePixels);
+  
+  return imageEqual;
+}
+
 + (NSBitmapImageRep *)diffImage:(NSBitmapImageRep *)image referenceImage:(NSBitmapImageRep *)referenceImage
 {
     
@@ -124,7 +233,7 @@ typedef union {
 {
     long width = [image pixelsWide];
     long height = [image pixelsHigh];
-    NSColor *highlightColor = [NSColor colorWithDeviceRed:1.0 green:0.54 blue:0.569 alpha:0.7];
+    // NSColor *highlightColor = [NSColor colorWithDeviceRed:1.0 green:0.54 blue:0.569 alpha:0.7];
 
     NSColor *color1, *color2;
     for (long i = 0; i< width; i++) {
@@ -134,10 +243,6 @@ typedef union {
             if ([color1 isEqual:color2]) {
                 // 255, 145, 54 100, 56.9, 21.2
                 color1 = [color1 colorWithAlphaComponent:0.3];
-//                color1 = [NSColor colorWithDeviceRed:color1.redComponent + highlightColor.redComponent
-//                                      green:color1.greenComponent + highlightColor.greenComponent
-//                                       blue:color1.blueComponent + highlightColor.blueComponent
-//                                       alpha:1.0];
                 color1 = [NSColor colorWithDeviceRed:1.0 - color1.redComponent
                                       green:1.0 - color1.greenComponent
                                        blue:1.0 - color1.blueComponent
@@ -152,25 +257,20 @@ typedef union {
 
 + (void)createMovie:(FramesStorage *)framesToExport withCompletion:(ImageProcessingMovieCompletion)completion;
 {
-    NSMutableArray *tempFrames = [[NSMutableArray alloc] init];
+    FramesStorage *tempFrames = [[FramesStorage alloc] init];
     
     NSSize size = framesToExport.size;
     long width = size.width;
-    
-    NSLog(@"imagesCount: %li sourcewidth: %f",
-          framesToExport.count,
-          size.width
-          );
     
     while (width % 16 != 0) {
         width--;
     }
     NSDictionary *settings = [CEMovieMaker videoSettingsWithCodec:AVVideoCodecH264
                                                         withWidth:width andHeight:size.height];
-    float timestamp = [[NSDate date] timeIntervalSince1970];
+    // float timestamp = [[NSDate date] timeIntervalSince1970];
     NSURL *urlToWrite = [[self applicationDataDirectory]
                          URLByAppendingPathComponent:
-                         [NSString stringWithFormat:@"%f%li_movie.mov", timestamp, framesToExport.count]];
+                         [NSString stringWithFormat:@"%f_movie.mov", [framesToExport objectAtIndex:0].timestamp]];
     
     CEMovieMaker *movieMaker = [[CEMovieMaker alloc]
                                 initWithSettings:settings
@@ -189,7 +289,9 @@ typedef union {
                                  bytesPerRow:0
                                  bitsPerPixel:0];
         rep.size = size;
-        
+      
+        FrameWithMetadata *frame = [framesToExport objectAtIndex:i];
+      
         [NSGraphicsContext saveGraphicsState];
         [NSGraphicsContext setCurrentContext:
         [NSGraphicsContext graphicsContextWithBitmapImageRep:rep]];
@@ -201,17 +303,21 @@ typedef union {
         
         if ([framesToExport objectAtIndex:i].touch == 1) {
             NSPoint point = [framesToExport objectAtIndex:i].touchLocation;
-            [self drawTouchPoint:point.x y:point.y * 2];
+            [self drawTouchPoint:point.x y:point.y * 2 radius:size.width / 5];
         }
        
         [NSGraphicsContext restoreGraphicsState];
-        
-        NSImage *frame = [[NSImage alloc] init];
-        [frame addRepresentation:rep];
-        [tempFrames addObject:frame];
+      
+      
+        NSImage *image = [[NSImage alloc] init];
+        [image addRepresentation:rep];
+        frame.image = image;
+       // [tempFrames addObject:frame];
+      
+        [tempFrames updateFrame:frame index:i];
     }
  
-  [movieMaker createMovieFromImages:[tempFrames copy] withCompletion:completion];
+  [movieMaker createMovieFromFrames:tempFrames withCompletion:completion];
 }
 
 +(BOOL) writeCGImage:(CGImageRef) image path:(NSString *) path
@@ -234,9 +340,8 @@ typedef union {
     return YES;
 }
 
-+(void)drawTouchPoint:(CGFloat)x y:(CGFloat)y
++(void)drawTouchPoint:(CGFloat)x y:(CGFloat)y radius:(CGFloat)radius
 {
-    int radius = 150;
     NSRect rect = NSMakeRect(x + radius / 2, y - radius / 2, radius, radius);
     NSBezierPath* circlePath = [NSBezierPath bezierPath];
     [circlePath appendBezierPathWithOvalInRect: rect];
@@ -316,7 +421,7 @@ typedef union {
                           j, index, (unsigned long)frame.touch,
                           frame.touchLocation.x,
                           frame.touchLocation.y);
-                    [self drawTouchPoint:x + frame.touchLocation.x y: y + frame.touchLocation.y * 2];
+                  [self drawTouchPoint:x + frame.touchLocation.x y: y + frame.touchLocation.y * 2 radius:pieceWidth / 5];
                 }
                 //NSString *text = [NSString stringWithFormat:@"%li", index];
                 //NSColor* color = frame.differ ? [NSColor greenColor] : [NSColor redColor];

@@ -6,6 +6,7 @@
 //  Copyright (c) 2014 Cameron Ehrlich. All rights reserved.
 //
 
+#import "FramesStorage.h"
 @import AVFoundation;
 @import Foundation;
 @import AppKit;
@@ -33,6 +34,7 @@ typedef void(^CEMovieMakerCompletion)(NSURL *fileURL);
 
 - (instancetype)initWithSettings:(NSDictionary *)videoSettings withURL:(NSURL *)fileURL withFPS:(int)fps;
 - (void)createMovieFromImages:(NSArray CE_GENERIC_IMAGE*)images withCompletion:(CEMovieMakerCompletion)completion;
+- (void)createMovieFromFrames:(FramesStorage *)images withCompletion:(CEMovieMakerCompletion)completion;
 
 + (NSDictionary *)videoSettingsWithCodec:(NSString *)codec withWidth:(CGFloat)width andHeight:(CGFloat)height;
 

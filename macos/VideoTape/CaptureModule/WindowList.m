@@ -4,7 +4,7 @@ NSRect getRectForSpecificApp(NSString* processName, NSRect bounds) {
   CGFloat screenHeight = [NSScreen mainScreen].frame.size.height;
   if ([processName isEqualToString:@"Simulator"]) {
     // we need to remove accidental clock numbers changing
-    int TITLEBAR_CORRECTION = 40;
+    int TITLEBAR_CORRECTION = 35;
     int BLACK_FRAME_CORRECTION = 0;
     return CGRectMake(
                       bounds.origin.x + BLACK_FRAME_CORRECTION,

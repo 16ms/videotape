@@ -13,13 +13,13 @@
 		"videotape": "./cli/videotape.js"
 	},
 	"dependencies": {
+		"yargs": "^8.0.2"
+	},
+	"devDependencies": {
 		"date-fns": "^2.0.0-alpha.1",
 		"react": "16.0.0-alpha.12",
 		"react-native-http-bridge": "16ms/react-native-http-bridge",
 		"react-native-macos": "^0.15.3",
-		"yargs": "^8.0.2"
-	},
-	"devDependencies": {
 		"babel-jest": "20.0.3",
 		"babel-preset-react-native": "1.9.2",
 		"flow-bin": "^0.50.0",

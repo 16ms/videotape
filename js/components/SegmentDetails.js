@@ -9,6 +9,7 @@ import {
   Linking,
   TouchableOpacity,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import VideoPreview from './VideoPreview';
 import { type FrameProps, type SegmentProps } from '../types';
@@ -20,8 +21,8 @@ const Frame = ({ diff, touch }: FrameProps) =>
       : 'frame has not changed to previous'}`}
     style={[
       styles.frame,
-      !diff ? styles.droppedFrameStyle : {},
       touch > 0 ? styles.touchFrameStyle : {},
+      !diff ? styles.droppedFrameStyle : {},
     ]}
   />;
 
@@ -34,7 +35,9 @@ export default ({ segment }: { segment: SegmentProps }) =>
   <ScrollView contentContainerStyle={styles.container}>
     <Title>Frames stats</Title>
     <View style={styles.frames}>
-      {segment.framesMetadata.map((f, i) => <Frame key={i} {...f} />)}
+      {segment.framesMetadata.map((f, i) =>
+        <Frame key={`${i}_${f.touch}`} {...f} />
+      )}
     </View>
     <Title>Video fragment</Title>
     {segment.movieURL
@@ -50,7 +53,14 @@ export default ({ segment }: { segment: SegmentProps }) =>
           />
         </TouchableOpacity>
       : <ActivityIndicator />}
-    {/* <Text>{JSON.stringify(segment)}</Text> */}
+    {/* <TextInput style={{ height: 50, width: 200 }} value={segment.movieURL} />
+    {segment.framesMetadata.map((frame, i) =>
+      <Text key={i}>
+        {i > 0 ? frame.time - segment.framesMetadata[i - 1].time : frame.time}{' '}
+        {frame.diff ? 'diff' : ''}
+      </Text>
+    )}
+    <Text>{JSON.stringify(segment)}</Text> */}
   </ScrollView>;
 
 const styles = StyleSheet.create({

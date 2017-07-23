@@ -35,7 +35,7 @@
   }
 }
 
-- (void)addFrame:(FrameWithMetadata *)frameWithMetadata index:(NSUInteger)index
+- (void)updateFrame:(FrameWithMetadata *)frameWithMetadata index:(NSUInteger)index
 {
     if (framesWithMetadata.count > index && ![[framesWithMetadata objectAtIndex:index] isEqual:nil]) {
         [framesWithMetadata replaceObjectAtIndex: index withObject:frameWithMetadata];

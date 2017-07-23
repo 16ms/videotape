@@ -14,7 +14,7 @@ import addMetrics from '../metrics';
 function extractMetadataTitle({ fps, framesMetadata }) {
   const score = addMetrics({ framesMetadata }).score || 0;
   return `  ${Math.round(
-    framesMetadata.length * 1000 / 60
+    framesMetadata.length * 1000 / fps
   )}ms  score: ${Math.round(score * 100)}%`;
 }
 
@@ -34,6 +34,9 @@ export default ({
 }: any) =>
   <View style={styles.container}>
     <FlatList
+      initialNumToRender={10}
+      keyExtractor={({ uuid }) => uuid}
+      removeClippedSubviews={false}
       data={segments}
       keyExtractor={segment => segment.uuid}
       ItemSeparatorComponent={({ highlighted }) =>
