@@ -11,8 +11,10 @@ const path = require('path');
 function getPathToBinary() {
   if (!RELEASE) {
     /*
+     * now it's in manual mode
      * run:
      * xcodebuild -showBuildSettings -configuration Debug -project macos/VideoTape.xcodeproj | grep TARGET_BUILD_DIR
+     * TODO: extract it automatically
      */
     return '/Users/ptmt/Library/Developer/Xcode/DerivedData/VideoTape-hldagcwzsplsyocceiosnlryfvcv/Build/Products/Debug/VideoTape.app/Contents/MacOS/VideoTape';
   }

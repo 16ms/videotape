@@ -22,7 +22,7 @@ import addMetrics from './metrics';
 
 import { type AppState } from './types';
 
-const STORAGE_KEY = 'storage.key';
+const STORAGE_KEY = 'app.storage.key';
 
 export default class VideoTapeApp extends Component {
   constructor() {

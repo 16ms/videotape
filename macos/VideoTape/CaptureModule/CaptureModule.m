@@ -115,7 +115,7 @@
   session = [[AVCaptureSession alloc] init];
   
   // Set the session preset as you wish
-  session.sessionPreset = AVCaptureSessionPresetMedium;//AVCaptureSessionPresetHigh;
+  session.sessionPreset = AVCaptureSessionPresetHigh;
   
   CGDirectDisplayID displayId = kCGDirectMainDisplay;
   
@@ -286,14 +286,14 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         return;
       }
       
-      // --- DETECT STARTING OF SEGMENT ---
+      // --- DETECT PAUSES ---
       // too many similar frames in the row
       // we're waiting for beginning of segment
-      if (similarPreviousFrames >= totalPreviousFrames) {
+      if (similarPreviousFrames > PAUSE_THRESHOLD) {
         if (totalPreviousFrames > 1) {
           NSLog(@"DEBUG: Shouldn't intterrupt in the middle of segment %i %i", totalPreviousFrames, similarPreviousFrames);
         }
-        totalPreviousFrames = 1;
+        totalPreviousFrames = 0;
         return;
       }
       
