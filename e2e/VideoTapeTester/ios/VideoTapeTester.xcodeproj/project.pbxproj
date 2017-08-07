@@ -23,6 +23,9 @@
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		D432F14D1EF1B0160033849B /* VideoTapeTesterUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = D432F14C1EF1B0160033849B /* VideoTapeTesterUITests.m */; };
+		D4A2B9241F276CCF001E4741 /* VideoTapeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D4A2B9231F276CCF001E4741 /* VideoTapeManager.m */; };
+		D4A2B9251F27750D001E4741 /* VideoTapeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D4A2B9231F276CCF001E4741 /* VideoTapeManager.m */; };
+		D4AF95611F35D0A6008FD662 /* VideoTapeModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AF95601F35D0A6008FD662 /* VideoTapeModule.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -247,6 +250,10 @@
 		D432F14A1EF1B0160033849B /* VideoTapeTesterUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VideoTapeTesterUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D432F14C1EF1B0160033849B /* VideoTapeTesterUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoTapeTesterUITests.m; sourceTree = "<group>"; };
 		D432F14E1EF1B0160033849B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D4A2B9221F276CCF001E4741 /* VideoTapeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VideoTapeManager.h; path = VideoTapeTester/VideoTapeManager/VideoTapeManager.h; sourceTree = "<group>"; };
+		D4A2B9231F276CCF001E4741 /* VideoTapeManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = VideoTapeManager.m; path = VideoTapeTester/VideoTapeManager/VideoTapeManager.m; sourceTree = "<group>"; };
+		D4AF955F1F35D0A6008FD662 /* VideoTapeModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VideoTapeModule.h; path = VideoTapeTester/VideoTapeModule.h; sourceTree = "<group>"; };
+		D4AF95601F35D0A6008FD662 /* VideoTapeModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = VideoTapeModule.m; path = VideoTapeTester/VideoTapeModule.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -341,6 +348,10 @@
 		13B07FAE1A68108700A75B9A /* VideoTapeTester */ = {
 			isa = PBXGroup;
 			children = (
+				D4AF955F1F35D0A6008FD662 /* VideoTapeModule.h */,
+				D4AF95601F35D0A6008FD662 /* VideoTapeModule.m */,
+				D4A2B9221F276CCF001E4741 /* VideoTapeManager.h */,
+				D4A2B9231F276CCF001E4741 /* VideoTapeManager.m */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -801,8 +812,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D4A2B9241F276CCF001E4741 /* VideoTapeManager.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				D4AF95611F35D0A6008FD662 /* VideoTapeModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -811,6 +824,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D432F14D1EF1B0160033849B /* VideoTapeTesterUITests.m in Sources */,
+				D4A2B9251F27750D001E4741 /* VideoTapeManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

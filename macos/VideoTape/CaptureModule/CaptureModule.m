@@ -9,19 +9,22 @@
 #import "WindowList.h"
 
 @implementation CaptureModule {
-  NSImage* prevframe;
-  NSRunningApplication *capturingApp;
+  NSImage* prevFrame;
+  NSRunningApplication *capturedApp;
   AVCaptureSession *session;
   long framesIndex;
   long prevFramesIndex;
+  int similarPreviousFrames;
+  int totalPreviousFrames;
   FramesStorage *framesStorage;
   dispatch_queue_t framesMainQueue;
   dispatch_queue_t framesAdditionalQueue;
   NSTimer *timer;
   AVCaptureScreenInput *input;
-  int similarPreviousFrames;
-  int totalPreviousFrames;
   NSTimeInterval prevTimestamp;
+  NSTimeInterval offsetTime;
+  CMTime offsetTimeAsCMTime;
+  NSMutableArray* unproccessedTouches;
 }
 
 
@@ -30,6 +33,7 @@
   self = [super init];
   if (self) {
     framesStorage = [[FramesStorage alloc] initWithCapacity:FRAMES_STORAGE_CAPACITY];
+    unproccessedTouches = [[NSMutableArray alloc] init];
     self.settings = [[NSMutableDictionary alloc] init];
     self.settings[@"framesLimitPerSegment"] = @(2 * FRAMES_STORAGE_CAPACITY / 3);
     self.capturing = NO;
@@ -109,7 +113,7 @@
                           }];
     return;
   }
-  capturingApp = [NSRunningApplication runningApplicationWithProcessIdentifier:(int)self.pid];
+  capturedApp = [NSRunningApplication runningApplicationWithProcessIdentifier:(int)self.pid];
   [self ensureAppIsOnTop];
   
   session = [[AVCaptureSession alloc] init];
@@ -135,25 +139,6 @@
   output.alwaysDiscardsLateVideoFrames = NO;
   output.videoSettings = @{ (NSString *)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA) };
   
-  //    AVCaptureMovieFileOutput *mMovieFileOutput = [[AVCaptureMovieFileOutput alloc] init];
-  //    if ([session canAddOutput:mMovieFileOutput])
-  //        [session addOutput:mMovieFileOutput];
-  //    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-  //    NSString *docDir = [paths objectAtIndex:0];
-  //    NSString *destPath = [docDir stringByAppendingPathComponent:@"log.mov"];
-  //    if ([[NSFileManager defaultManager] fileExistsAtPath:destPath])
-  //    {
-  //        NSError *err;
-  //        if (![[NSFileManager defaultManager] removeItemAtPath:destPath error:&err])
-  //        {
-  //            NSLog(@"Error deleting existing movie %@", [err localizedDescription]);
-  //        }
-  //    }
-
-
-  
-  prevframe = [[NSImage alloc] init];
-  
   dispatch_queue_attr_t highPriorityAttr = dispatch_queue_attr_make_with_qos_class (DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED,-1);
   framesMainQueue = dispatch_queue_create("VideoTape.framesMainQueue", highPriorityAttr);
   framesAdditionalQueue = dispatch_queue_create("VideoTape.framesAdditionalQueue", NULL);
@@ -161,19 +146,21 @@
   
   timer = [NSTimer scheduledTimerWithTimeInterval:1.0f
                                    target:self
-                                 selector:@selector(checkCapturingAppStatus)
+                                 selector:@selector(checkCapturedAppStatus)
                                  userInfo:nil
                                   repeats:YES];
   
   [session startRunning];
   [self.delegate onCapturingStateChange:CapturingStarted body:nil];
   self.capturing = YES;
-  prevTimestamp = [[NSDate date] timeIntervalSince1970];
+  offsetTime = [NSDate timeIntervalSinceReferenceDate] + NSTimeIntervalSince1970;
+  prevTimestamp = offsetTime;
+  prevFrame = [[NSImage alloc] init];
 }
 
 -(void)ensureAppIsOnTop
 {  
-  [capturingApp activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+  [capturedApp activateWithOptions:NSApplicationActivateIgnoringOtherApps];
 }
 
 -(void)stop
@@ -186,16 +173,16 @@
   }
 }
 
-- (void)checkCapturingAppStatus
+- (void)checkCapturedAppStatus
 {
-  if (!capturingApp.isActive && session.isRunning) {
+  if (!capturedApp.isActive && session.isRunning) {
     [self.delegate onCapturingStateChange:CapturingPaused body:nil];
     [session stopRunning];
     return;
   }
   NSDictionary *windowState = [self getWindowStateForApp];
   input.cropRect = ((NSValue *)windowState[@"bounds"]).rectValue;
-  if (capturingApp.isActive && !session.isRunning) {
+  if (capturedApp.isActive && !session.isRunning) {
     [self ensureAppIsOnTop];
     [self.delegate onCapturingStateChange:CapturingStarted body:nil];
     [session startRunning];
@@ -211,6 +198,27 @@
   NSLog(@"Dropped!");
 }
 
+- (void)addFrameToBuffer:(NSImage *)image touch:(NSUInteger)touch diff:(bool)diff timestamp:(NSTimeInterval)timestamp touchLocation:(CGPoint)touchLocation durationTime:(CMTime)durationTime
+{
+  FrameWithMetadata *frame = [[FrameWithMetadata alloc] init];
+  frame.image = image;
+  frame.touch = touch;
+  frame.diff = diff;
+  frame.touchLocation = touchLocation;
+  frame.timestamp = timestamp;
+  frame.presentationTime = durationTime;
+  
+  [framesStorage updateFrame:frame index:framesIndex];
+  
+  // pretend that this is a ring buffer
+  // TODO: hide this detail into framesStorage
+  if (framesIndex < FRAMES_STORAGE_CAPACITY) {
+    framesIndex++;
+  } else {
+    framesIndex = 0;
+  }
+}
+
 - (void)captureOutput:(AVCaptureOutput *)captureOutput
 didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
        fromConnection:(AVCaptureConnection *)connection
@@ -218,12 +226,15 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
   // if the target process isn't  on the screen,
   // we can't capture the screen
   // because we use AVFoundation APIs
-  if (!capturingApp || !capturingApp.isActive) {
+  if (!capturedApp || !capturedApp.isActive) {
     [self processCapturedFrames];
     similarPreviousFrames = 0;
     totalPreviousFrames = 0;
     prevFramesIndex = framesIndex;
     return;
+  }
+  if (CMTIME_IS_INVALID(offsetTimeAsCMTime)) {
+    offsetTimeAsCMTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
   }
   
   static mach_timebase_info_data_t    sTimebaseInfo;
@@ -233,28 +244,58 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
   // uint64_t started = mach_absolute_time();
   // double time = (mach_absolute_time()) * sTimebaseInfo.numer / sTimebaseInfo.denom / 1000 / 1000 / 1000;
  
-  __block NSTimeInterval timestamp = [NSDate timeIntervalSinceReferenceDate] + NSTimeIntervalSince1970;
-  if ((timestamp - prevTimestamp) * 1000 > 2 / FPS_INPUT) {
-    NSLog(@"DEBUG Late frame: %ld %f", CMSampleBufferGetNumSamples(sampleBuffer), (timestamp - prevTimestamp) * 1000);
-   
-  }
+  CMTime presentationTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+  __block NSTimeInterval timestamp = CMTimeGetSeconds(CMTimeSubtract(presentationTime, offsetTimeAsCMTime)) + offsetTime;
+
   prevTimestamp = timestamp;
   
-  // CMTime presentationTime = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+  
+  
+  //NSLog(@"presentationTime %f", CMTimeGetSeconds(CMTimeSubtract(presentationTime, offsetTimeAsCMTime)) + offsetTime);
   CMTime durationTime = CMSampleBufferGetDuration(sampleBuffer);
-  __block NSUInteger mouseState = [NSEvent pressedMouseButtons];
-  __block NSPoint mouseLocation = CGPointMake(
-                                              [NSEvent mouseLocation].x - input.cropRect.origin.x,
-                                              [NSEvent mouseLocation].y - input.cropRect.origin.y);
+//  __block NSUInteger mouseState = [NSEvent pressedMouseButtons];
+//  __block NSPoint mouseLocation = CGPointMake(
+//                                              [NSEvent mouseLocation].x - input.cropRect.origin.x,
+//                                              [NSEvent mouseLocation].y - input.cropRect.origin.y);
+  __block NSUInteger mouseState = 0;
+  __block NSPoint mouseLocation = CGPointMake(0, 0);
+  for (int i=0; i< [unproccessedTouches count]; i++) {
+    NSTimeInterval diff = [unproccessedTouches[i][@"timestamp"] doubleValue] - timestamp;
+    if (totalPreviousFrames == 0 && fabs(diff) < 2.0 / FPS_INPUT) {
+      NSLog(@"-> timestamp %f diff: %f totalPreviousFrames", timestamp, diff);
+      totalPreviousFrames = 1;
+      mouseLocation = CGPointMake(
+                                  [unproccessedTouches[i][@"x"] intValue],
+                                  [unproccessedTouches[i][@"y"] intValue]);
+      mouseState = 1;
+      [self
+          addFrameToBuffer:prevFrame
+                     touch:1
+                      diff:YES
+                 timestamp:timestamp
+             touchLocation:mouseLocation
+              durationTime:CMTimeMake(1, FPS_INPUT)];
+    }
+    if (totalPreviousFrames < 2 && fabs(diff) < 1 / FPS_INPUT) {
+      NSLog(@"timestamp Found one!");
+      mouseState = 1;
+      mouseLocation = CGPointMake(
+                                  [unproccessedTouches[i][@"x"] intValue],
+                                  [unproccessedTouches[i][@"y"] intValue]);
+      
+    }
+    [unproccessedTouches removeObjectAtIndex:i];
+  }
+
   
   // uint64_t started = mach_absolute_time();
   __block NSImage *image = [ImageProcessing imageFromSampleBuffer:sampleBuffer];
   // double ms = (mach_absolute_time() - started) * sTimebaseInfo.numer / sTimebaseInfo.denom / 1000.0 / 1000.0;
   // NSLog(@"image constructed in %f %lld", ms, mach_absolute_time() - started);
   dispatch_async(framesAdditionalQueue, ^{
-    if (prevframe != nil && prevframe.size.width > 0) {
+    if (prevFrame != nil && prevFrame.size.width > 0) {
       totalPreviousFrames++;
-      NSBitmapImageRep* previous = (NSBitmapImageRep *) prevframe.representations[0];
+      NSBitmapImageRep* previous = (NSBitmapImageRep *) prevFrame.representations[0];
       NSBitmapImageRep* current = (NSBitmapImageRep *) image.representations[0];
       
       BOOL equalToPrevious = [ImageProcessing compareBitmaps:previous referenceImage:current];
@@ -268,7 +309,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         similarPreviousFrames = 0;
       }
       
-      
       // --- DETECT ENDING OF SEGMENT ---
       // One of the following should be true to finish recording
       // and start processing captured data:
@@ -279,6 +319,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
       if ((similarPreviousFrames > PAUSE_THRESHOLD &&
            totalPreviousFrames > similarPreviousFrames + CAPTURE_THRESHOLD && mouseState == 0) ||
           (totalPreviousFrames > [self.settings[@"framesLimitPerSegment"] integerValue])) {
+        NSLog(@"timestamp finish");
         [self processCapturedFrames];
         similarPreviousFrames = 0;
         totalPreviousFrames = 0;
@@ -291,34 +332,32 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
       // we're waiting for beginning of segment
       if (similarPreviousFrames > PAUSE_THRESHOLD) {
         if (totalPreviousFrames > 1) {
-          NSLog(@"DEBUG: Shouldn't intterrupt in the middle of segment %i %i", totalPreviousFrames, similarPreviousFrames);
+          NSLog(@"timestamp pause");
         }
         totalPreviousFrames = 0;
         return;
       }
       
-      NSLog(@"FRAMES_INDEX %li %i %i", framesIndex, similarPreviousFrames, totalPreviousFrames);
+      NSLog(@"timestamp %f %lu %hhd %li totalPreviousFrames %i",
+            timestamp,
+            (unsigned long)mouseState,
+            equalToPrevious,
+            framesIndex,
+            totalPreviousFrames);
       
-      FrameWithMetadata *frame = [[FrameWithMetadata alloc] init];
-      frame.image = image;
-      frame.touch = mouseState;
-      frame.diff = !equalToPrevious;
-      frame.touchLocation = mouseLocation;
-      frame.timestamp = timestamp;
-      frame.presentationTime = durationTime;
       
-      [framesStorage updateFrame:frame index:framesIndex];
       
-      if (framesIndex < FRAMES_STORAGE_CAPACITY) {
-        framesIndex++;
-      } else {
-        framesIndex = 0;
-      }
+      [self addFrameToBuffer:prevFrame
+                       touch:mouseState
+                        diff:!equalToPrevious
+                   timestamp:timestamp
+               touchLocation:mouseLocation
+                durationTime:durationTime];
       
     } else {
       NSLog(@"DEBUG: no prevImage!");
     }
-    prevframe = image;
+    prevFrame = image;
   });
 }
 
@@ -329,22 +368,30 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
   }
   for (int i =0; i < event.count; i++) {
     NSDictionary *touchData = event[i];
+    bool found = NO;
     // search buffer for right timestamp
     for (int j = 0; j < framesStorage.count; j++) {
    
       FrameWithMetadata *frame = [framesStorage objectAtIndex:j];
       
-      NSTimeInterval diff = [touchData[@"timestamp"] floatValue] - frame.timestamp * 1000;
-        NSLog(@"RECORD TOUCH: %f %f %f", [touchData[@"timestamp"] floatValue], frame.timestamp * 1000, diff);
-      if (diff >= 0 && diff < 1 / FPS_INPUT) {
+      NSTimeInterval diff = [touchData[@"timestamp"] doubleValue] - frame.timestamp;
+        NSLog(@"RECORD TOUCH: %f %f %f", [touchData[@"timestamp"] doubleValue], frame.timestamp, diff);
+      if (fabs(diff) < 1 / FPS_INPUT) {
         // set touch state and put it back to buffer storage
         frame.touch = 1;
         frame.touchLocation = NSMakePoint([touchData[@"x"] floatValue], [touchData[@"y"] floatValue]);
         [framesStorage updateFrame:frame index:j];
+        found = YES;
         break;
       }
     }
+    
+    if (!found) {
+      // if we don't find any ready frames we should set the global touch state
+      [unproccessedTouches addObject:touchData];
+    }
   }
+  
 }
 
 - (void)processCapturedFrames

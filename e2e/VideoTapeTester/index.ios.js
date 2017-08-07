@@ -5,8 +5,17 @@
  */
 
 import React, { Component } from 'react';
-import { AppRegistry, StyleSheet, Button, View, Text } from 'react-native';
+import {
+  AppRegistry,
+  StyleSheet,
+  NativeModules,
+  Button,
+  View,
+  Text,
+} from 'react-native';
 import { StackNavigator } from 'react-navigation';
+
+const { VideoTape } = NativeModules;
 
 class ChatScreen extends React.Component {
   static navigationOptions = {
@@ -31,6 +40,13 @@ class HomeScreen extends React.Component {
       <View>
         <Text>Hello, Chat App!</Text>
         <Button onPress={() => navigate('Chat')} title="Chat with Lucy" />
+        <Button onPress={() => VideoTape.start()} title="Videotape start" />
+        <Button
+          onPress={() =>
+            VideoTape.getLastSegment().then(res => console.log(res))}
+          title="Get last segment"
+        />
+        <Button onPress={() => VideoTape.stop()} title="Videotape stop" />
       </View>
     );
   }

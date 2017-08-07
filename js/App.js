@@ -124,7 +124,6 @@ export default class VideoTapeApp extends Component {
     );
     CaptureModule.onCapturingStateChange(event => {
       if (event.capturingState === 'error') {
-        //
         if (this.args.autorun && this.resettingAttempts > 5) {
           CaptureModule.log(`Error: ${event.body.error}`);
           process.exit(1);

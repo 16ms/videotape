@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import <UIKit/UIKit.h>
+#import "VideoTapeManager.h"
 
 #define TARGET_SCORE 0.75
 
@@ -32,26 +33,33 @@
 
 - (void)tearDown {
     sleep(2);
-    [self videotape:@{@"type": @"STOP_CAPTURING"} checkAnswer:NO];
+    [VideoTapeManager stopCapturing];
     [super tearDown];
 }
 
 - (void)testNavigationTransition
 {
-  sleep(1);
-  [self videotape:@{@"type": @"START_CAPTURING"} checkAnswer:NO];
+  float score = 0.0;
+  sleep(0.5);
+  [VideoTapeManager startCapturing];
   XCUIApplication *app = [[XCUIApplication alloc] init];
   XCUIElement *chatWithLucyButton = app.buttons[@"Chat with Lucy"];
   [chatWithLucyButton tap];
-  [self recordTouch:[chatWithLucyButton coordinateWithNormalizedOffset:CGVectorMake(0.0, 0.0)]];
-  
+//  [VideoTapeManager recordTouch:[chatWithLucyButton coordinateWithNormalizedOffset:CGVectorMake(0.0, 0.0)].screenPoint];
+//  
   sleep(1);
-  [self videotape:@{@"type": @"GET_LAST_SEGMENT"} checkAnswer:YES];
+  ;
+  score = [VideoTapeManager getLastSegmentScore];
+  XCTAssertGreaterThan(score, TARGET_SCORE);
   sleep(2);
-  [self recordTouch:[app.buttons[@"header-back"] coordinateWithNormalizedOffset:CGVectorMake(0.0, 0.0)]];
+//  [VideoTapeManager
+//      recordTouch:[app.buttons[@"header-back"]
+//                      coordinateWithNormalizedOffset:CGVectorMake(0.0, 0.0)]
+//                      .screenPoint];
   [app.buttons[@"header-back"] tap];
   sleep(1);
-  [self videotape:@{@"type": @"GET_LAST_SEGMENT"} checkAnswer:YES];
+  score = [VideoTapeManager getLastSegmentScore];
+  XCTAssertGreaterThan(score, TARGET_SCORE);
 //  [chatWithLucyButton tap];
 //  [self videotape:@{@"type": @"GET_LAST_SEGMENT"} checkAnswer:YES];
 //  
@@ -64,67 +72,7 @@
 
 }
 
--(void)recordTouch:(XCUICoordinate *)coordinate
-{
-  [self videotape:@{
-    @"type" : @"RECORD_TOUCH_EVENT",
-    @"event" : @[ @{
-      @"x" : @(coordinate.screenPoint.x),
-      @"y" : @(coordinate.screenPoint.y),
-      @"timestamp" : @([NSDate date].timeIntervalSince1970 * 1000)
-    } ]
-  }
-      checkAnswer:NO];
-}
 
--(void)recordTouch:(XCUICoordinate *)startCoordinate endCoordinate:(XCUICoordinate *)endCoordinate duration:(NSTimeInterval)duration
-{
-  [self videotape:@{@"type": @"RECORD_TOUCH_EVENT", @"event": @[]} checkAnswer:YES];
-}
 
--(void)videotape:(NSDictionary *)payload checkAnswer:(BOOL)checkAnswer
-{
-  NSLog(@"videotape http request: %@", payload);
-  NSError *error;
-  NSData *postData = [NSJSONSerialization dataWithJSONObject:payload
-                                                     options:(NSJSONWritingOptions)    (NSJSONWritingPrettyPrinted)
-                                                       error:&error];
-  
-  NSString *postLength = [NSString stringWithFormat:@"%lu", (unsigned long)[postData length]];
-  
-  NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
-  [request setURL:[NSURL URLWithString:@"http://localhost:5561"]];
-  [request setHTTPMethod:@"POST"];
-  [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
-  [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-  [request setHTTPBody:postData];
-  dispatch_semaphore_t    sem =  dispatch_semaphore_create(0);
-  NSDictionary __block *result = nil;
-  NSURLSessionDataTask *task = [[NSURLSession sharedSession]
-      dataTaskWithRequest:request
-        completionHandler:^(NSData *data, NSURLResponse *response,
-                            NSError *error) {
-          XCTAssertNil(error, @"Http request to videotape should be null");
-          if (checkAnswer) {
-            XCTAssertNotNil(data, @"Response should not be null");
-            error = nil;
-            if (data) {
-              result = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
-              XCTAssertNil(error, @"HTTPResult should be valid json");
-            }
-          }
-          dispatch_semaphore_signal(sem);
-        }];
-  [task resume];
-  dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
-  if (checkAnswer) {
-    XCTAssertNotNil(result[@"score"]);
-    NSLog(@"result: %@", result);
-    XCTAssert([result[@"score"] floatValue] > TARGET_SCORE,
-              @"Score is %f, TARGET_SCORE=%f, details %@",
-              [result[@"score"] floatValue], TARGET_SCORE, result[@"scoreDetails"] );
-  }
-  return;
-}
 
 @end
