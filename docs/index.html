@@ -14,9 +14,9 @@
   <style>
     /* I'm really like to not overcomplicate things */
     .bg-gray {
-        background: #f8f9fa;
-        color: #667189;
-        padding: 1rem;
+      background: #f8f9fa;
+      color: #667189;
+      padding: 1rem;
     }
     .section-header {
       padding: 1rem .5rem;
@@ -31,23 +31,25 @@
       padding-right: .6rem;
     }
     .grid-header .navbar {
-      height: 4rem;
+      height: 1rem;
     }
-    .docs-content {
+    .docs-content:first-child {
       margin-top: 5rem;
-      color: #4a4a4a;
     }
     body {
       font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
     }
+    .docs-content {
+      padding: 0rem 0rem 0rem 2rem;
+    }
     .docs-content h2 {
-      font-weight: 300;
-      font-size: 5rem;
+      font-weight: 600;
+      font-size: 2rem;
     }
     .docs-content p {
-      font-size: 2rem;
-      font-weight: 400;
-      line-height: 1.5;
+      font-size: 16px;
+      line-height: 24px;
+      color: #4d4d4d;
     }
   </style>
 </head>
@@ -57,7 +59,6 @@
       <nav class="navbar">
         <section class="navbar-section">
           <a href="/#introduction" class="navbar-brand mr-10">Videotape</a>
-          <a href="#howitworks" class="btn btn-link">How it works</a>
         </section>
         <section class="navbar-section">
           <a href="https://github.com/16ms/videotape" target="_blank" class="btn btn-primary">GitHub</a>
@@ -68,25 +69,25 @@
 
   <section class="container grid-960">
     <section class="columns">
-      <div class="docs-content column col-10 col-sm-12" id="introduction">
+      <div class="docs-content column col-8 col-sm-12" id="introduction">
           <h2>How to measure UI smoothness?</h2>
-          <p>This article tries to find a formal answer from the beginner's perspective.
-            "Does it feels as it should?", "This UI performs better than another", or even "After new update UX became slightly worse". </p>
+          <p>This article tries to find a formal answer from the beginner's naive perspective to questions such as:
+            "Does it feels as it should?", "This UI framework performs better than another, does it?", or even "After new update UX became slightly worse, or it is just for me?". </p>
           <p><strong>FPS (frames per second)</strong> is probably the first metric what comes to mind when we try to measure the UI performance.
             Video game players are very well aware of framerate differiences, game developers have beein using most sophisticated techniques
              to achieve higher rates (espessially in VR).</p>
           <p>Higher fps is usually desired target everywhere (except modern cinema industry which stuck at 24fps).
             And it can be measured by internal developer tools in browsers and IDEs</p>
 
-          <p>Let's see some examples prerecorded via Videotape.
+          <p>Some examples prerecorded via Videotape.
             Difference between 30fps and 60fps might be less noticable, you may need to watch clips multiple times to feel it.</p>
-      </div>
-        <div class="column centered col-3 col-sm-12" id="introduction">
+
           <p class="centered">
             <button class="btn" onclick="document.querySelectorAll('.fps-example').forEach(function(video) { video.play(); });">Play</button>
             <button class="btn" onclick="document.querySelectorAll('.fps-example').forEach(function(video) { video.pause(); });">Pause</button>
           </p>
-        </div>
+      </div>
+
     </section>
     <section class="columns">
 
