@@ -68,23 +68,25 @@
 
   <section class="container grid-960">
     <section class="columns">
-      <div class="docs-content column col-9 col-sm-12" id="introduction">
+      <div class="docs-content column col-10 col-sm-12" id="introduction">
           <h2>How to measure UI smoothness?</h2>
-          <!-- <p>It's really hard to have the formal answer to the questions like "How it feels?" or "This UI performs better than another", or even "This isn't native UI". </p> -->
-          <p><strong>FPS (frames per second)</strong> is probably the first metric what comes to mind.
-            Video game players are very well aware of framerate differiences and game developers have most sophisticated techniques
+          <p>This article tries to find a formal answer from the beginner's perspective.
+            "Does it feels as it should?", "This UI performs better than another", or even "After new update UX became slightly worse". </p>
+          <p><strong>FPS (frames per second)</strong> is probably the first metric what comes to mind when we try to measure the UI performance.
+            Video game players are very well aware of framerate differiences, game developers have beein using most sophisticated techniques
              to achieve higher rates (espessially in VR).</p>
           <p>Higher fps is usually desired target everywhere (except modern cinema industry which stuck at 24fps).
             And it can be measured by internal developer tools in browsers and IDEs</p>
 
           <p>Let's see some examples prerecorded via Videotape.
             Difference between 30fps and 60fps might be less noticable, you may need to watch clips multiple times to feel it.</p>
+      </div>
+        <div class="column centered col-3 col-sm-12" id="introduction">
           <p class="centered">
             <button class="btn" onclick="document.querySelectorAll('.fps-example').forEach(function(video) { video.play(); });">Play</button>
             <button class="btn" onclick="document.querySelectorAll('.fps-example').forEach(function(video) { video.pause(); });">Pause</button>
           </p>
-      </div>
-
+        </div>
     </section>
     <section class="columns">
 
@@ -168,12 +170,13 @@
           However, rendering might not be finished in time, leading to <strong>dropped frames</strong>.
           That time can be calculated: 1 second / 60 frames ≈ <strong>16.6ms</strong> per frame.
           Basically, in such cases, the previous frame is displayed instead.
-          It's crucial if an app needs to present important layout changes, or some visual feedback, but it doesn't able to</p>
+          It's crucial if an app needs to present important layout changes for the visual feedback, but couldn't.
+          Framerate drops for a few frames and tt got immediately noticed by user.</p>
 
-        <p>Let's suppose we have a simple box moving with linear speed from bottom to up.
-           We also have an artificial JS buzz generator, randomly freezing the JS thread from 2-4 frames.
+        <p>Imagine an app: a simple box moving with linear speed from bottom to up.
+           Let's add an artificial JS buzz generator, which randomly freezes the JS thread for 2-4 frames.
          <strong>You can notice lags in the movement.</strong>
-         Let's capture screenshots of our app 60 times per seconds and create a special sequence of snapshots.
+         We can capture screenshots of our app 60 times per seconds and create a sequence of snapshots.
          This allows to compare two neighbor frames, pixel by pixel. Naive approach: If frame has changed pixels, we mark it as a green.
          <img src="/media/animated_frames.png" class="img-responsive centered" alt="Frames stats" style="max-width: 400px; padding: 2em" />
         </p>
@@ -192,15 +195,15 @@
 
       <div class="docs-content column col-9 col-sm-12">
         <p>
-          What do orange frames means for a smootn move?
-          This is how this segment of the screenshot sequence looks more closely, consisting of three frames:
+          What do orange frames mean for a smootn move?
+          This is how this segment of the screenshot sequence looks more closely, consisted of three frames:
         </p>
 
         <p>
           <img src="/media/animated_canvas_dropped.png" class="img-responsive" alt="Dropped frame" style=" padding: 2em" />
-          At the normal conditions the box slightly moving in desired direction by a few pixels every 16ms.
+          At the normal conditions the box slightly moves to the desired direction by a few pixels every 16ms.
           But when rendering is artificially freezed, the calculation for a position can't be done in time and the box stops moving at all.
-          And after freezing ending, the box jumped directly to the position according to timestamp. All of this combined produce the lag.
+          And after freezing ends, the box jumps directly to the position according to timestamp. All of this combined produce the lag.
         </p>
       </div>
 
@@ -215,7 +218,8 @@
 
       <div class="docs-content column col-9 col-sm-12">
         <p>
-          <strong>Latency</strong> is a time between user interaction and the feedback. It's harder to measure directly, but we can get the basic idea by same principle.
+          <strong>Latency</strong> is a response time between user interaction and the visual feedback.
+          It's harder to measure directly, but we can get the basic idea by using the same principle of analyzing the sequence.
         </p>
       </div>
 
