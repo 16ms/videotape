@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="author" content="https://github.com/ptmt/" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/videotape/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/videotape/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/videotape/favicon-16x16.png">
   <title>Videotape.app</title>
   <link rel="stylesheet" href="https://picturepan2.github.io/spectre/dist/spectre.css" />
   <style>
@@ -94,7 +94,7 @@
         <section class="container">
           <figure class="figure">
             <video loop muted class="img-responsive fps-example">
-              <source src="/media/15fps_ios.mp4" type="video/mp4">
+              <source src="media/15fps_ios.mp4" type="video/mp4">
             </video>
             <figcaption class="figure-caption text-center">15fps</figcaption>
           </figure>
@@ -104,7 +104,7 @@
         <section class="container">
           <figure class="figure">
             <video loop muted class="img-responsive fps-example">
-              <source src="/media/30fps_ios.mp4" type="video/mp4">
+              <source src="media/30fps_ios.mp4" type="video/mp4">
             </video>
             <figcaption class="figure-caption text-center">30fps</figcaption>
           </figure>
@@ -114,7 +114,7 @@
         <section class="container">
           <figure class="figure">
             <video loop muted class="img-responsive fps-example">
-              <source src="/media/60fps_ios.mp4" type="video/mp4">
+              <source src="media/60fps_ios.mp4" type="video/mp4">
             </video>
             <figcaption class="figure-caption text-center">60fps</figcaption>
           </figure>
@@ -127,7 +127,7 @@
         <section class="container">
           <figure class="figure">
             <video loop muted class="img-responsive fps-example">
-              <source src="/media/15fps_safari.mp4" type="video/mp4">
+              <source src="media/15fps_safari.mp4" type="video/mp4">
             </video>
             <figcaption class="figure-caption text-center">15fps</figcaption>
           </figure>
@@ -137,7 +137,7 @@
         <section class="container">
           <figure class="figure">
             <video loop muted class="img-responsive fps-example">
-              <source src="/media/30fps_safari.mp4" type="video/mp4">
+              <source src="media/30fps_safari.mp4" type="video/mp4">
             </video>
             <figcaption class="figure-caption text-center">30fps</figcaption>
           </figure>
@@ -147,7 +147,7 @@
         <section class="container">
           <figure class="figure">
             <video loop muted class="img-responsive fps-example">
-              <source src="/media/60fps_safari.mp4" type="video/mp4">
+              <source src="media/60fps_safari.mp4" type="video/mp4">
             </video>
             <figcaption class="figure-caption text-center">60fps</figcaption>
           </figure>
@@ -178,7 +178,7 @@
          <strong>You can notice lags in the movement.</strong>
          We can capture screenshots of our app 60 times per seconds and create a sequence of snapshots.
          This allows to compare two neighbor frames, pixel by pixel. Naive approach: If frame has changed pixels, we mark it as a green.
-         <img src="/media/animated_frames.png" class="img-responsive centered" alt="Frames stats" style="max-width: 400px; padding: 2em" />
+         <img src="media/animated_frames.png" class="img-responsive centered" alt="Frames stats" style="max-width: 400px; padding: 2em" />
         </p>
       </div>
 
@@ -186,7 +186,7 @@
         <section class="card">
           <figure class="figure">
             <video loop muted autoplay class="img-responsive">
-              <source src="/media/animated_example.mp4" type="video/mp4">
+              <source src="media/animated_example.mp4" type="video/mp4">
             </video>
             <figcaption class="figure-caption text-center">Dropped frames example</figcaption>
           </figure>
@@ -200,7 +200,7 @@
         </p>
 
         <p>
-          <img src="/media/animated_canvas_dropped.png" class="img-responsive" alt="Dropped frame" style=" padding: 2em" />
+          <img src="media/animated_canvas_dropped.png" class="img-responsive" alt="Dropped frame" style=" padding: 2em" />
           At the normal conditions the box slightly moves to the desired direction by a few pixels every 16ms.
           But when rendering is artificially freezed, the calculation for a position can't be done in time and the box stops moving at all.
           And after freezing ends, the box jumps directly to the position according to timestamp. All of this combined produce the lag.
@@ -210,8 +210,8 @@
       <div class="docs-content column col-3 col-sm-12">
         <section class="card">
           <figure class="figure">
-            <img src="/media/animated_canvas_small.png" class="img-responsive" alt="Snapshot" />
-            <figcaption class="figure-caption text-center">The whole sequence of frames, <a href="/media/animated_canvas.png">see in full res</a></figcaption>
+            <img src="media/animated_canvas_small.png" class="img-responsive" alt="Snapshot" />
+            <figcaption class="figure-caption text-center">The whole sequence of frames, <a href="media/animated_canvas.png">see in full res</a></figcaption>
           </figure>
         </section>
       </div>
@@ -236,7 +236,7 @@
             <p>You can install it with <code>npm install videotape -g</code> and use via command-line and GUI
               if you're really willing to be <i>an alpha tester</i>.</p>
               <figure class="figure">
-                <img src="/media/videotape0.1.png" class="img-responsive" alt="Videotape 0.1" />
+                <img src="media/videotape0.1.png" class="img-responsive" alt="Videotape 0.1" />
               </figure>
       </div>
 
