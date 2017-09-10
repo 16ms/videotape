@@ -342,7 +342,7 @@ typedef union {
 
 +(void)drawTouchPoint:(CGFloat)x y:(CGFloat)y radius:(CGFloat)radius
 {
-    NSRect rect = NSMakeRect(x + radius / 2, y - radius / 2, radius, radius);
+    NSRect rect = NSMakeRect(x, y - radius / 2, radius, radius);
     NSBezierPath* circlePath = [NSBezierPath bezierPath];
     [circlePath appendBezierPathWithOvalInRect: rect];
     [[NSColor colorWithSRGBRed:0.5 green:0.5 blue:0.5 alpha:0.7] setStroke];

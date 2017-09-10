@@ -156,7 +156,7 @@ typedef NSImage*(^CEMovieMakerNSImageExtractor)(NSObject* inputObject);
             // CMTime lastTime = CMTimeMake(i - 1, self.frameTime.timescale);
             // CMTime presentTime = CMTimeSubtract([images objectAtIndex:i].presentationTime, [images objectAtIndex:0].presentationTime);
             presentTime = CMTimeAdd([images objectAtIndex:i].presentationTime, presentTime);
-            NSLog(@"presentTime %f", CMTimeGetSeconds(presentTime));
+            // NSLog(@"presentTime %f", CMTimeGetSeconds(presentTime));
             BOOL res = [self.bufferAdapter appendPixelBuffer:sampleBuffer withPresentationTime:presentTime];
             if (!res) {
               NSLog(@"Error: assetWriter.status %li", (long)self.assetWriter.status);

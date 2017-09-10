@@ -14,7 +14,7 @@ import {
 import * as httpBridge from 'react-native-http-bridge';
 import reducer, { Actions } from './reducer';
 import SplitView from './components/SplitView';
-import * as CaptureModule from './components/CaptureModule';
+import * as CaptureModule from './capture/CaptureModule';
 import ProjectsList from './components/ProjectsList';
 import SegmentsList from './components/SegmentsList';
 import SegmentDetails from './components/SegmentDetails';
@@ -22,7 +22,7 @@ import addMetrics from './metrics';
 
 import { type AppState } from './types';
 
-const STORAGE_KEY = 'app.storage.key';
+const STORAGE_KEY = 'app.storage';
 
 export default class VideoTapeApp extends Component {
   constructor() {
@@ -91,6 +91,7 @@ export default class VideoTapeApp extends Component {
           );
         }
         if (request.postData.type === 'RECORD_TOUCH_EVENT') {
+          console.log('recordedTouchEvent', request.postData.event);
           CaptureModule.recordTouchEvent(request.postData.event);
           httpBridge.respond(200);
         }
@@ -168,10 +169,11 @@ export default class VideoTapeApp extends Component {
                 payload: { selectedSegment },
               })}
           />
-          {selectedSegment &&
+          {selectedSegment && (
             <SegmentDetails
               segment={segments.filter(s => s.uuid === selectedSegment)[0]}
-            />}
+            />
+          )}
         </View>
       </SplitView>
     );

@@ -1,16 +1,16 @@
 #import <Cocoa/Cocoa.h>
+#import "ImageProcessing.h"
 
 NSRect getRectForSpecificApp(NSString* processName, NSRect bounds) {
   CGFloat screenHeight = [NSScreen mainScreen].frame.size.height;
   if ([processName isEqualToString:@"Simulator"]) {
     // we need to remove accidental clock numbers changing
-    int TITLEBAR_CORRECTION = 35;
     int BLACK_FRAME_CORRECTION = 0;
     return CGRectMake(
                       bounds.origin.x + BLACK_FRAME_CORRECTION,
                       screenHeight - bounds.origin.y - (bounds.size.height),
                       bounds.size.width - BLACK_FRAME_CORRECTION * 2,
-                      bounds.size.height - TITLEBAR_CORRECTION);
+                      bounds.size.height - SIMULATOR_BAR_CORRECTION);
 
   }
 
