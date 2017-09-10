@@ -119,21 +119,16 @@
 
 +(void)recordTouch:(CGPoint)coordinate
 {
+  
   [VideoTapeManager videotapeAction:@{
                     @"type" : @"RECORD_TOUCH_EVENT",
                     @"event" : @[ @{
                                     @"x" : @(coordinate.x),
-                                    @"y" : @(coordinate.y),
+                                    @"y" : @([UIApplication sharedApplication].windows.firstObject.frame.size.height - coordinate.y),
                                     @"timestamp" : @([NSDate timeIntervalSinceReferenceDate] + NSTimeIntervalSince1970)
                                     } ]
                     }
       parseResponse:NO];
 }
-
-//+(void)recordTouch:(XCUICoordinate *)startCoordinate endCoordinate:(XCUICoordinate *)endCoordinate duration:(NSTimeInterval)duration
-//{
-//  [self videotape:@{@"type": @"RECORD_TOUCH_EVENT", @"event": @[]} checkAnswer:YES];
-//}
-
 
 @end
