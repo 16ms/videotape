@@ -10,245 +10,271 @@
   <link rel="icon" type="image/png" sizes="96x96" href="/videotape/favicon-96x96.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/videotape/favicon-16x16.png">
   <title>Videotape.app</title>
-  <link rel="stylesheet" href="https://picturepan2.github.io/spectre/dist/spectre.css" />
+
   <style>
-    /* I'm really like to not overcomplicate things */
-    .bg-gray {
-      background: #f8f9fa;
-      color: #667189;
-      padding: 1rem;
-    }
-    .section-header {
-      padding: 1rem .5rem;
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 200;
-    }
-    .grid-header .btn-link {
-      color: #667189;
-      padding-left: .6rem;
-      padding-right: .6rem;
-    }
-    .grid-header .navbar {
-      height: 1rem;
-    }
-    #introduction {
-      margin-top: 5rem;
-    }
     body {
-      font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Lucida Grande";
+      font-size: 1.1em;
+      margin: 0;
     }
-    .docs-content {
-      padding: 0rem 0rem 0rem 2rem;
+    .page {
+      width: 100%;
+      position: relative;
+      float: left;
+      text-align: center;
+      min-height: 100vh;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      padding: 0;
+      margin: 0;
+      background: #ede7f6;
     }
-    .docs-content h2 {
-      font-weight: 600;
-      font-size: 2rem;
+    .page:nth-of-type(2) {
+      background: #d1c4e9;
     }
-    .docs-content p {
-      font-size: 16px;
-      line-height: 24px;
-      color: #4d4d4d;
+    .page:nth-of-type(3) {
+      background: #b39ddb;
+      color: white;
     }
+    .page:nth-of-type(4) {
+      background: #9575cd;
+      color: white;
+    }
+    .page:nth-of-type(5) {
+      background: #673ab7;
+      color: white;
+    }
+    .page:nth-of-type(6) {
+      background: #5e35b1;
+      color: white;
+    }
+    .page:nth-of-type(7) {
+      background: #512da8;
+      color: white;
+    }
+    .page:nth-of-type(8) {
+      background: #4527a0;
+      color: white;
+    } /*#311b92*/
+    .page:nth-of-type(9) {
+      background: #b388ff;
+      color: white;
+    }
+    .page:nth-of-type(10) {
+      background: #7c4dff;
+      color: white;
+    }
+    p {
+      max-width: 500px;
+      text-align: left;
+      padding: 1em;
+      line-height: 1.5em;
+    }
+    .arrow {
+      width: 32px;
+      height: 32px;
+      position: absolute;
+      bottom: 5%;
+      font-size: 2em;
+    }
+    .columns {
+      flex-direction: row;
+    }
+    .rows {
+      flex-direction: column;
+    }
+    .img-responsive {
+      max-height: 300px;
+      display: flex;
+    }
+    .figure-caption {
+      font-size: 12px;
+      padding: 2em;
+      font-style: italic;
+    }
+    .centered {
+      text-align: center;
+    }
+    button {
+      font-size: 0.8em;
+    }
+    /*.link {
+      margin-right: 0.5em;
+      color: black;
+      font-size: 0.8em;
+      text-decoration: none;
+    }*/
   </style>
 </head>
 <body>
-  <section class="section section-header bg-gray">
-    <section class="grid-header container grid-960">
-      <nav class="navbar">
-        <section class="navbar-section">
-          <a href="/#introduction" class="navbar-brand mr-10">Videotape</a>
-        </section>
-        <section class="navbar-section">
-          <a href="https://github.com/16ms/videotape" target="_blank" class="btn btn-primary">GitHub</a>
-        </section>
-      </nav>
-    </section>
+  <!-- <nav style="position: fixed; z-index: 100; width: 100%; text-align: right; top: 0px">
+    <a href="https://github.com/16ms/videotape" target="_blank" class="link">GitHub</a>
+  </nav>
+ -->
+  <section class="page" id="intro">
+    <div class="text">
+      <h2>How to measure UI smoothness?</h2>
+      <p>This article tries to find a formal answer (from the beginner's naive perspective) to questions such as:
+        <i>"Does it feels as it should?"</i>,
+        <i>"This UI framework performs better than another, does it?"</i>, or even
+        <i>"After new update UX became slightly worse, or it is just for me?"</i>. </p>
+    </div>
+    <div class="arrow">↓</div>
+  </section>
+  <section class="page rows">
+    <p><strong>FPS (frames per second)</strong> is probably the first metric what comes to mind when we try to measure the UI performance.
+      Video game players are very well aware of framerate differiences, game developers have beein using most sophisticated techniques
+       to achieve higher rates (espessially in VR).</p>
+    <p>Higher fps is usually desired target everywhere (except modern cinema industry which stuck at 24fps).
+      And it can be measured by internal developer tools in browsers and IDEs</p>
   </section>
 
-  <section class="container grid-960">
-    <section class="columns">
-      <div class="docs-content column col-8 col-sm-12" id="introduction">
-          <h2>How to measure UI smoothness?</h2>
-          <p>This article tries to find a formal answer from the beginner's naive perspective to questions such as:
-            "Does it feels as it should?", "This UI framework performs better than another, does it?", or even "After new update UX became slightly worse, or it is just for me?". </p>
-          <p><strong>FPS (frames per second)</strong> is probably the first metric what comes to mind when we try to measure the UI performance.
-            Video game players are very well aware of framerate differiences, game developers have beein using most sophisticated techniques
-             to achieve higher rates (espessially in VR).</p>
-          <p>Higher fps is usually desired target everywhere (except modern cinema industry which stuck at 24fps).
-            And it can be measured by internal developer tools in browsers and IDEs</p>
+  <section class="page columns">
+    <div style="position: absolute; top: 50px">
 
-          <p>Some examples prerecorded via Videotape.
-            Difference between 30fps and 60fps might be less noticable, you may need to watch clips multiple times to feel it.</p>
+      <div class="centered">
+        <button class="btn" onclick="document.querySelectorAll('.video-preview').forEach(function(video) { video.play(); });">Play</button>
+        <button class="btn" onclick="document.querySelectorAll('.video-preview').forEach(function(video) { video.pause(); });">Pause</button>
+      </div>
+    </div>
+    <figure>
+      <video loop muted class="img-responsive video-preview">
+        <source src="media/15fps_ios.mp4" type="video/mp4">
+      </video>
+      <figcaption class="figure-caption text-center">15fps</figcaption>
+    </figure>
 
-          <p class="centered">
-            <button class="btn" onclick="document.querySelectorAll('.fps-example').forEach(function(video) { video.play(); });">Play</button>
-            <button class="btn" onclick="document.querySelectorAll('.fps-example').forEach(function(video) { video.pause(); });">Pause</button>
-          </p>
-      </div>
+    <figure>
+      <video loop muted class="img-responsive video-preview">
+        <source src="media/30fps_ios.mp4" type="video/mp4">
+      </video>
+      <figcaption class="figure-caption text-center">30fps</figcaption>
+    </figure>
 
-    </section>
-    <section class="columns">
 
-      <div class="docs-content column col-3 col-sm-6">
-        <section class="container">
-          <figure class="figure">
-            <video loop muted class="img-responsive fps-example">
-              <source src="media/15fps_ios.mp4" type="video/mp4">
-            </video>
-            <figcaption class="figure-caption text-center">15fps</figcaption>
-          </figure>
-        </section>
-      </div>
-      <div class="docs-content column col-3 col-sm-6">
-        <section class="container">
-          <figure class="figure">
-            <video loop muted class="img-responsive fps-example">
-              <source src="media/30fps_ios.mp4" type="video/mp4">
-            </video>
-            <figcaption class="figure-caption text-center">30fps</figcaption>
-          </figure>
-        </section>
-      </div>
-      <div class="docs-content column col-3 col-sm-6">
-        <section class="container">
-          <figure class="figure">
-            <video loop muted class="img-responsive fps-example">
-              <source src="media/60fps_ios.mp4" type="video/mp4">
-            </video>
-            <figcaption class="figure-caption text-center">60fps</figcaption>
-          </figure>
-        </section>
-      </div>
+    <figure>
+      <video loop muted class="img-responsive video-preview">
+        <source src="media/60fps_ios.mp4" type="video/mp4">
+      </video>
+      <figcaption class="figure-caption text-center"><abbr title="In order to get unthrottled 60fps in ios simulator sometimes you need to change the window scale to lower values and check your CPU load">60fps</abbr></figcaption>
+    </figure>
 
-    </section>
-    <section class="columns">
-      <div class="docs-content column col-3 col-sm-6">
-        <section class="container">
-          <figure class="figure">
-            <video loop muted class="img-responsive fps-example">
-              <source src="media/15fps_safari.mp4" type="video/mp4">
-            </video>
-            <figcaption class="figure-caption text-center">15fps</figcaption>
-          </figure>
-        </section>
-      </div>
-      <div class="docs-content column col-3 col-sm-6">
-        <section class="container">
-          <figure class="figure">
-            <video loop muted class="img-responsive fps-example">
-              <source src="media/30fps_safari.mp4" type="video/mp4">
-            </video>
-            <figcaption class="figure-caption text-center">30fps</figcaption>
-          </figure>
-        </section>
-      </div>
-      <div class="docs-content column col-3 col-sm-6">
-        <section class="container">
-          <figure class="figure">
-            <video loop muted class="img-responsive fps-example">
-              <source src="media/60fps_safari.mp4" type="video/mp4">
-            </video>
-            <figcaption class="figure-caption text-center">60fps</figcaption>
-          </figure>
-        </section>
-      </div>
-
-      <div class="docs-content column col-12 col-sm-12  bg-gray">
-          <blockquote>In order to get unthrottled 60fps in ios simulator sometimes you need to change the window scale to lower values and check your CPU load.</blockquote>
-      </div>
-
-    </section>
+    <div style="width: 250px; font-size: 0.8em">
+        <span>Difference between 30fps and 60fps might be less noticable, you may need to watch clips multiple times to feel it.</span>
+    </div>
   </section>
 
-  <section class="container grid-960">
-    <section class="columns">
-      <div class="docs-content column col-9 col-sm-12">
-        <p>For web and mobile interfaces target FPS usually is 60,
-          since most of the screens works on <a href="https://en.wikipedia.org/wiki/Refresh_rate#Computer_displays">60Hz refresh rate</a>
-          (Hello, the new iPad and its 120Hz).
-          However, rendering might not be finished in time, leading to <strong>dropped frames</strong>.
-          That time can be calculated: 1 second / 60 frames ≈ <strong>16.6ms</strong> per frame.
-          Basically, in such cases, the previous frame is displayed instead.
-          It's crucial if an app needs to present important layout changes for the visual feedback, but couldn't.
-          Framerate drops for a few frames and tt got immediately noticed by user.</p>
+  <section class="page columns">
+    <div style="position: absolute; top: 10px">
+      <p class="centered">
+        <button class="btn" onclick="document.querySelectorAll('.video-preview').forEach(function(video) { video.play(); });">Play</button>
+        <button class="btn" onclick="document.querySelectorAll('.video-preview').forEach(function(video) { video.pause(); });">Pause</button>
+     </p>
+   </div>
+   <figure>
+     <video loop muted class="img-responsive video-preview">
+       <source src="media/15fps_safari.mp4" type="video/mp4">
+     </video>
+     <figcaption class="figure-caption text-center">15fps</figcaption>
+   </figure>
 
-        <p>Imagine an app: a simple box moving with linear speed from bottom to up.
-           Let's add an artificial JS buzz generator, which randomly freezes the JS thread for 2-4 frames.
-         <strong>You can notice lags in the movement.</strong>
-         We can capture screenshots of our app 60 times per seconds and create a sequence of snapshots.
-         This allows to compare two neighbor frames, pixel by pixel. Naive approach: If frame has changed pixels, we mark it as a green.
-         <img src="media/animated_frames.png" class="img-responsive centered" alt="Frames stats" style="max-width: 400px; padding: 2em" />
-        </p>
-      </div>
+   <figure>
+     <video loop muted class="img-responsive video-preview">
+       <source src="media/30fps_safari.mp4" type="video/mp4">
+     </video>
+     <figcaption class="figure-caption text-center">30fps</figcaption>
+   </figure>
 
-      <div class="docs-content column col-3 col-sm-12">
-        <section class="card">
-          <figure class="figure">
-            <video loop muted autoplay class="img-responsive">
-              <source src="media/animated_example.mp4" type="video/mp4">
-            </video>
-            <figcaption class="figure-caption text-center">Dropped frames example</figcaption>
-          </figure>
-        </section>
-      </div>
+   <figure>
+     <video loop muted class="img-responsive video-preview">
+       <source src="media/60fps_safari.mp4" type="video/mp4">
+     </video>
+     <figcaption class="figure-caption text-center">60fps</figcaption>
+   </figure>
+  </section>
 
-      <div class="docs-content column col-9 col-sm-12">
-        <p>
-          What do orange frames mean for a smootn move?
-          This is how this segment of the screenshot sequence looks more closely, consisted of three frames:
-        </p>
+  <section class="page rows">
+    <p>For web and mobile interfaces target FPS usually is 60,
+      since most of the screens works on <a style="color: white" href="https://en.wikipedia.org/wiki/Refresh_rate#Computer_displays">60Hz refresh rate</a>
+      (Hello, the new iPad and its 120Hz).</p>
+    <p>
+      However, rendering might not be finished in time, leading to <strong>dropped frames</strong>.
+      That time can be calculated: 1 second / 60 frames ≈ <strong>16.6ms</strong> per frame.
+      Basically, in such cases, the previous frame is displayed instead.
+      It's crucial when an app requires to present important layout changes for the visual feedback, but couldn't.
+      Framerate drops for a few frames and it got immediately noticed by user.
+    </p>
+  </section>
 
-        <p>
-          <img src="media/animated_canvas_dropped.png" class="img-responsive" alt="Dropped frame" style=" padding: 2em" />
-          At the normal conditions the box slightly moves to the desired direction by a few pixels every 16ms.
-          But when rendering is artificially freezed, the calculation for a position can't be done in time and the box stops moving at all.
-          And after freezing ends, the box jumps directly to the position according to timestamp. All of this combined produce the lag.
-        </p>
-      </div>
+  <section class="page">
+    <figure>
+      <video loop muted autoplay class="video-preview img-responsive">
+        <source src="media/animated_example.mp4" type="video/mp4">
+      </video>
+      <figcaption class="figure-caption text-center">Dropped frames</figcaption>
+    </figure>
 
-      <div class="docs-content column col-3 col-sm-12">
-        <section class="card">
-          <figure class="figure">
-            <img src="media/animated_canvas_small.png" class="img-responsive" alt="Snapshot" />
-            <figcaption class="figure-caption text-center">The whole sequence of frames, <a href="media/animated_canvas.png">see in full res</a></figcaption>
-          </figure>
-        </section>
-      </div>
+    <p>Imagine an app: a simple box moving with linear speed from bottom to up.
+       Let's add an artificial JS buzz generator, which randomly freezes the JS thread for 2-4 frames.
+     <strong>You can notice lags in the movement.</strong>
+     We can capture screenshots of our app 60 times per seconds and create a sequence of snapshots.
+     This allows to compare two neighbor frames, pixel by pixel. Naive approach: If frame has changed pixels, we mark it as a green.
+     <img src="media/animated_frames.png" class="img-responsive centered" alt="Frames stats" style="max-width: 400px; padding: 2em" />
 
-      <div class="docs-content column col-9 col-sm-12">
-        <p>
-          <strong>Latency</strong> is a response time between user interaction and the visual feedback.
-          It's harder to measure directly, but we can get the basic idea by using the same principle of analyzing the sequence.
-        </p>
-      </div>
+      What do orange frames mean for a smooth move?
+    </p>
+  </section>
 
+  <section class="page rows">
+    <p>Breaking down our recorded video into individual frames:
+    </p>
+    <figure class="figure">
+      <img src="media/animated_canvas_small.png" style="max-height: 600px" alt="Snapshot of the whole sequence of frames" />
+      <figcaption class="figure-caption text-center"><a href="media/animated_canvas.png" style="color: white">In full resolution (5598 × 14014)</a></figcaption>
+    </figure>
+  </section>
 
-      <div class="docs-content column col-12 col-sm-12" id="howitworks">
+  <section class="page">
+    <p>
+      This is how the segment of the sequence  with dropped frame looks more closely, consisted of three frames:
+      <img src="media/animated_canvas_dropped.png" class="img-responsive" alt="Dropped frame" style="padding-top: 2em; width: 400px" />
+    </p>
 
-          <h2>How it works</h2>
+    <p>
+      Normally the box slightly moves to the desired direction by a few pixels every 16ms.
+      But when rendering is artificially freezed, the calculation for a position can't be done in time and the box stops moving at all.
+      And after freezing ends, the box jumps directly to the position according to timestamp. All of this combined produce the lag.
+    </p>
+  </section>
 
-            <p><strong>Videotape</strong> is a tool for capturing and analyzing frames sequence in order
-              to find UX performance regressions in your web and mobile apps.
-              It's an basic idea with a simple implementation to research the problem.</p>
-            <p>Videotape.app is a macOS only app roughly 4MB (half of size of which is an app icon)
-              with a thin node module wrapper for CLI management and distribution.</p>
-            <p>You can install it with <code>npm install videotape -g</code> and use via command-line and GUI
-              if you're really willing to be <i>an alpha tester</i>.</p>
-              <figure class="figure">
-                <img src="media/videotape0.1.png" class="img-responsive" alt="Videotape 0.1" />
-              </figure>
-      </div>
+  <section class="page">
+    <p>
+      <strong>Latency</strong> is a response time between user interaction and the visual feedback.
+      It's more complicated to measure directly using the same approach,
+      but we can get the basic idea by analyzing the sequence too.
+    </p>
 
   </section>
-</section>
 
-<footer class="bg-gray">
-   <section id="copyright" class="grid-footer container grid-960">
-     <p>CSS framework <a href="https://picturepan2.github.io/spectre/">spectre</a> designed and built with ♥ by <a href="https://twitter.com/picturepan2" target="_blank">Yan Zhu</a>. Licensed under the <a href="https://github.com/picturepan2/spectre/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
-   </section>
- </footer>
+
+  <section class="page">
+    <p>
+      Work in progress
+    </p>
+  </section>
+
+  <section class="page">
+    <p><strong>Videotape</strong> is a tool for capturing and analyzing frames sequence in order
+      to find UX performance regressions in your web and mobile apps.
+      It's an basic idea with a simple implementation to research the problem.</p>
+    <p>Videotape.app is a macOS only app roughly 4MB (half of size of which is an app icon)
+      with a thin node module wrapper for CLI management and distribution. You can install it with <code>npm install videotape -g</code> and use via command-line or GUI
+      if you're really willing to be <i>an alpha tester</i>.</p>
+      <figure class="figure">
+        <img src="media/videotape0.1.png" class="img-responsive" alt="Videotape 0.1" />
+      </figure>
+  </section>
 
 </body>
 </html>
