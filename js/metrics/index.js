@@ -1,5 +1,5 @@
 /* @flow */
-import { type SegmentProps } from '../types';
+import { type SegmentProps } from "../types";
 
 const LATENCY_THREUSHOLD_FRAMES = 2;
 
@@ -19,7 +19,7 @@ export function extractFrames(framesMetadata: any) {
   return framesMetadata.slice(startIndex, endIndex + 1);
 }
 /*
- *  Higher stability means lower amount flakiness
+ *  Higher stability means lower amount of flakiness
  *  Less dropped frames
  */
 export function calculateStability({ framesMetadata }: SegmentProps) {
@@ -72,7 +72,7 @@ export default function addMetrics(segment: SegmentProps) {
     score: (stability + latency) / 2, // very naive
     scoreDetails: {
       stability,
-      latency,
-    },
+      latency
+    }
   };
 }

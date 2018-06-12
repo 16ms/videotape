@@ -1,14 +1,12 @@
 # VideoTape
 
-Capture and analyze frames from your mobile and web applications to find out how stable your animations, and how fast responses to gestures.
+Capture and analyze frames from your mobile and web applications to find out how stable your animations, and how fast and consistent gesture responses.
+
+Via NPM:
 
 ```
 npm install -g videotape
 ```
-
-## Dropped frames
-
-## Latency
 
 ## License
 

@@ -10,14 +10,8 @@
 
 static NSDictionary *states;
 
-
 @implementation VTCaptureModuleProxy {
   VTToolbar *toolbar;
-//  NSToolbar *toolbar;
-//  NSTouchBar *touchbar;
-//  VTCapturingStatusComponent *capturingStatusComponent;
-//  CaptureModule *captureModule;
-//  NSButton *captureToggle;
 }
 
 RCT_EXPORT_MODULE();

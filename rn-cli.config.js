@@ -1,54 +1,19 @@
-const path = require('path');
-
-// Don't forget to everything listed here to `package.json`
-// modulePathIgnorePatterns.
-const sharedBlacklist = [
-  /node_modules[/\\]react[/\\]dist[/\\].*/,
-
-  'downstream/core/invariant.js',
-
-  /docs\/.*/,
-];
-
-const platformBlacklists = {
-  macos: ['.ios.js', '.android.js', /e2e\/.*/],
-};
-
-function escapeRegExp(pattern) {
-  if (Object.prototype.toString.call(pattern) === '[object RegExp]') {
-    return pattern.source.replace(/\//g, path.sep);
-  } else if (typeof pattern === 'string') {
-    const escaped = pattern.replace(
-      /[\-\[\]\{\}\(\)\*\+\?\.\\\^\$\|]/g,
-      '\\$&'
-    );
-    // convert the '/' into an escaped local file separator
-    return escaped.replace(/\//g, `\\${path.sep}`);
-  }
-  throw new Error(`Unexpected packager blacklist pattern: ${pattern}`);
-}
-
-function blacklist(platform, additionalBlacklist) {
-  // eslint-disable-next-line
-  return new RegExp(
-    '(' +
-      (additionalBlacklist || [])
-        .concat(sharedBlacklist)
-        .concat(platformBlacklists[platform] || [])
-        .map(escapeRegExp)
-        .join('|') +
-      ')$'
-  );
-}
+/**
+ * Copyright (c) 2015-present, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * React Native CLI configuration file
+ *
+ * @format
+ *
+ */
+"use strict";
 
 module.exports = {
-  getBlacklistRE(platform) {
-    if (
-      process &&
-      process.argv.filter(a => a.indexOf('react-native-macos') > -1).length > 0
-    ) {
-      return blacklist('macos');
-    }
-    return blacklist(platform);
-  },
+  getProvidesModuleNodeModules: () => ["react-native-macos"],
+  getPlatforms: () => "macos"
 };

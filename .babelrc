@@ -1,17 +1,20 @@
 {
   "presets": ["react-native"],
   "plugins": [
-    ["module-resolver", {
-      "alias": {
-        "react-native": "react-native-macos",
-        "fs": "./js/polyfills/fs",
-        "path": "./js/polyfills/path",
-        "util": "./js/polyfills/util",
-        "child_process": "./js/polyfills/child_process",
-        "assert": "./js/polyfills/child_process",
-        "url": "./js/polyfills/child_process",
-        "constants": "./js/polyfills/child_process",
+    [
+      "module-resolver",
+      {
+        "alias": {
+          "react-native": "react-native-macos",
+          "fs": "./js/polyfills/fs",
+          "path": "./js/polyfills/path",
+          "util": "./js/polyfills/util",
+          "child_process": "./js/polyfills/child_process",
+          "assert": "./js/polyfills/child_process",
+          "url": "./js/polyfills/child_process",
+          "constants": "./js/polyfills/child_process"
+        }
       }
-    }]
+    ]
   ]
 }

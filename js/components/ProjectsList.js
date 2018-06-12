@@ -1,69 +1,74 @@
 /* @flow */
-import React from 'react';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
-import ProjectsHeader from './ProjectsHeader';
-import { type ProjectProps } from '../types';
+import React from "react";
+import { StyleSheet, Text, View, FlatList } from "react-native";
+import ProjectsHeader from "./ProjectsHeader";
+import { type ProjectProps } from "../types";
 
 export default ({
   projects,
-  selectedProject,
+  selectedProject
 }: {
   projects: Array<ProjectProps>,
-  selectedProject: number,
-}) =>
+  selectedProject: number
+}) => (
   <FlatList
     data={projects}
     ListHeaderComponent={() => <ProjectsHeader />}
     contentContainerStyle={styles.container}
-    keyExtractor={project => project.uuid}
-    renderItem={({ item }) =>
+    keyExtractor={project => project.uuid.toString()}
+    renderItem={({ item }) => (
       <View
         key={item.uuid}
         contextMenu={[
-          { title: 'Rename Project' },
-          { title: 'Clear Project' },
+          { title: "Rename Project" },
+          { title: "Clear Project" },
           { isSeparator: true },
-          { title: 'Delete Project', key: 'd' },
+          { title: "Delete Project", key: "d" }
         ]}
         onContextMenuItemClick={({ nativeEvent: { menuItem } }) =>
-          alert('Not Implemented yet')}
+          alert("Not Implemented yet")
+        }
         style={[
           styles.projectWrapper,
-          selectedProject === item.uuid ? styles.highlighted : {},
-        ]}>
+          selectedProject === item.uuid ? styles.highlighted : {}
+        ]}
+      >
         <Text
           style={[
             styles.projectName,
-            selectedProject === item.uuid ? styles.highlightedText : {},
-          ]}>
+            selectedProject === item.uuid ? styles.highlightedText : {}
+          ]}
+        >
           {item.title}
         </Text>
-      </View>}
-  />;
+      </View>
+    )}
+  />
+);
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
   },
   highlighted: {
-    backgroundColor: 'rgba(0.5, 0.5, 0.5, 0.1)',
+    backgroundColor: "rgba(0.5, 0.5, 0.5, 0.1)"
   },
   focused: {
-    backgroundColor: '#3A8EFC',
+    backgroundColor: "#3A8EFC"
   },
   projectWrapper: {
     paddingVertical: 4,
-    paddingHorizontal: 20,
+    paddingHorizontal: 20
   },
   projectName: {
     fontSize: 13,
-    fontWeight: '300',
-    color: '#434343',
+    fontWeight: "300",
+    color: "#434343"
   },
   highlightedText: {
-    fontWeight: '500',
+    fontWeight: "500"
   },
   focusedText: {
-    color: '#FFFEF4',
-  },
+    color: "#FFFEF4"
+  }
 });

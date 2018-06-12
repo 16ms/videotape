@@ -1,12 +1,12 @@
 /* @flow */
-import React from 'react';
+import React from "react";
 
 import {
   requireNativeComponent,
   View,
   StyleSheet,
-  ScrollView,
-} from 'react-native';
+  ScrollView
+} from "react-native";
 
 // const RCTSplitView = requireNativeComponent('RCTSplitView', null);
 
@@ -28,13 +28,13 @@ export default class SplitView extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: "row"
   },
   leftPanel: {
-    backgroundColor: 'white',
-    maxWidth: 200,
+    backgroundColor: "white",
+    maxWidth: 200
   },
   main: {
-    flex: 1,
-  },
+    flex: 1
+  }
 });
