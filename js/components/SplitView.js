@@ -10,7 +10,11 @@ import {
 
 // const RCTSplitView = requireNativeComponent('RCTSplitView', null);
 
-export default class SplitView extends React.Component {
+type Props = {
+  leftPanel: React$Element<any>,
+  children: any
+};
+export default class SplitView extends React.PureComponent<Props> {
   // renderNativeSplitView() {
   //   return <RCTSplitView />;
   // }

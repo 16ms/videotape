@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="robots" content="index, follow" />
@@ -17,6 +18,7 @@
       font-size: 1.1em;
       margin: 0;
     }
+
     .page {
       width: 100%;
       position: relative;
@@ -30,47 +32,60 @@
       margin: 0;
       background: #ede7f6;
     }
+
     .page:nth-of-type(2) {
       background: #d1c4e9;
     }
+
     .page:nth-of-type(3) {
       background: #b39ddb;
       color: white;
     }
+
     .page:nth-of-type(4) {
       background: #9575cd;
       color: white;
     }
+
     .page:nth-of-type(5) {
       background: #673ab7;
       color: white;
     }
+
     .page:nth-of-type(6) {
       background: #5e35b1;
       color: white;
     }
+
     .page:nth-of-type(7) {
       background: #512da8;
       color: white;
     }
+
     .page:nth-of-type(8) {
       background: #4527a0;
       color: white;
-    } /*#311b92*/
+    }
+
+    /*#311b92*/
+
     .page:nth-of-type(9) {
       background: #b388ff;
       color: white;
     }
+
     .page:nth-of-type(10) {
       background: #7c4dff;
       color: white;
     }
+
     p {
       max-width: 500px;
       text-align: left;
       padding: 1em;
       line-height: 1.5em;
     }
+
     .arrow {
       width: 32px;
       height: 32px;
@@ -78,56 +93,109 @@
       bottom: 5%;
       font-size: 2em;
     }
+
     .columns {
       flex-direction: row;
     }
+
     .rows {
       flex-direction: column;
     }
+
     .img-responsive {
       max-height: 300px;
       display: flex;
     }
+
     .figure-caption {
       font-size: 12px;
       padding: 2em;
       font-style: italic;
     }
+
     .centered {
       text-align: center;
     }
+
     button {
       font-size: 0.8em;
     }
+
     /*.link {
       margin-right: 0.5em;
       color: black;
       font-size: 0.8em;
       text-decoration: none;
     }*/
+
+    nav {
+      position: fixed;
+      right: 0;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    nav a {
+      color: grey;
+      font-size: 12px;
+    }
+
+    nav a.active {
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    nav ul {
+      list-style: none;
+      padding: 1em;
+      margin: 0;
+    }
   </style>
 </head>
+
 <body>
   <!-- <nav style="position: fixed; z-index: 100; width: 100%; text-align: right; top: 0px">
     <a href="https://github.com/16ms/videotape" target="_blank" class="link">GitHub</a>
   </nav>
  -->
+  <nav class="overview">
+    <ul>
+      <li>
+        <a class="active" href="#FPS">FPS</a>
+      </li>
+      <li>
+        <a href="#droppedframes">Dropped frames</a>
+      </li>
+      <li>
+        <a href="#FPS">Latency</a>
+      </li>
+      <li>
+        <a href="#FPS">Advanced</a>
+      </li>
+      <li>
+        <a href="#FPS">Videotape.app</a>
+      </li>
+
+    </ul>
+  </nav>
   <section class="page" id="intro">
     <div class="text">
-      <h2>How to measure UI smoothness?</h2>
-      <p>This article tries to find a formal answer (from the beginner's naive perspective) to questions such as:
+      <h2>Is it possible to measure UI smoothness?</h2>
+      <p>The ultimate goal of this project is to find an answer (from the beginner's naive perspective) to questions such as:
         <i>"Does it feels as it should?"</i>,
         <i>"This UI framework performs better than another, does it?"</i>, or even
-        <i>"After new update UX became slightly worse, or it is just for me?"</i>. </p>
+        <i>"After the latest update UX became slightly worse, or is it just me?"</i>. </p>
     </div>
+
     <div class="arrow">↓</div>
   </section>
   <section class="page rows">
-    <p><strong>FPS (frames per second)</strong> is probably the first metric what comes to mind when we try to measure the UI performance.
-      Video game players are very well aware of framerate differiences, game developers have beein using most sophisticated techniques
-       to achieve higher rates (espessially in VR).</p>
-    <p>Higher fps is usually desired target everywhere (except modern cinema industry which stuck at 24fps).
-      And it can be measured by internal developer tools in browsers and IDEs</p>
+    <p>
+      <strong>FPS (frames per second)</strong> is probably the first metric what comes to mind when we try to measure the UI performance.
+      Video game players are very well aware of framerate differiences, game developers have beein using most sophisticated
+      techniques to achieve higher rates (espessially in VR).</p>
+    <p>Higher fps is usually desired target everywhere (except modern cinema industry which stuck at 24fps). FPS can be measured
+      by internal developer tools in browsers and IDEs</p>
   </section>
 
   <section class="page columns">
@@ -157,11 +225,13 @@
       <video loop muted class="img-responsive video-preview">
         <source src="media/60fps_ios.mp4" type="video/mp4">
       </video>
-      <figcaption class="figure-caption text-center"><abbr title="In order to get unthrottled 60fps in ios simulator sometimes you need to change the window scale to lower values and check your CPU load">60fps</abbr></figcaption>
+      <figcaption class="figure-caption text-center">
+        <abbr title="In order to get unthrottled 60fps in ios simulator sometimes you need to change the window scale to lower values and check your CPU load">60fps</abbr>
+      </figcaption>
     </figure>
 
     <div style="width: 250px; font-size: 0.8em">
-        <span>Difference between 30fps and 60fps might be less noticable, you may need to watch clips multiple times to feel it.</span>
+      <span>Difference between 30fps and 60fps might be less noticable, you may need to watch clips multiple times to feel it.</span>
     </div>
   </section>
 
@@ -170,40 +240,40 @@
       <p class="centered">
         <button class="btn" onclick="document.querySelectorAll('.video-preview').forEach(function(video) { video.play(); });">Play</button>
         <button class="btn" onclick="document.querySelectorAll('.video-preview').forEach(function(video) { video.pause(); });">Pause</button>
-     </p>
-   </div>
-   <figure>
-     <video loop muted class="img-responsive video-preview">
-       <source src="media/15fps_safari.mp4" type="video/mp4">
-     </video>
-     <figcaption class="figure-caption text-center">15fps</figcaption>
-   </figure>
+      </p>
+    </div>
+    <figure>
+      <video loop muted class="img-responsive video-preview">
+        <source src="media/15fps_safari.mp4" type="video/mp4">
+      </video>
+      <figcaption class="figure-caption text-center">15fps</figcaption>
+    </figure>
 
-   <figure>
-     <video loop muted class="img-responsive video-preview">
-       <source src="media/30fps_safari.mp4" type="video/mp4">
-     </video>
-     <figcaption class="figure-caption text-center">30fps</figcaption>
-   </figure>
+    <figure>
+      <video loop muted class="img-responsive video-preview">
+        <source src="media/30fps_safari.mp4" type="video/mp4">
+      </video>
+      <figcaption class="figure-caption text-center">30fps</figcaption>
+    </figure>
 
-   <figure>
-     <video loop muted class="img-responsive video-preview">
-       <source src="media/60fps_safari.mp4" type="video/mp4">
-     </video>
-     <figcaption class="figure-caption text-center">60fps</figcaption>
-   </figure>
+    <figure>
+      <video loop muted class="img-responsive video-preview">
+        <source src="media/60fps_safari.mp4" type="video/mp4">
+      </video>
+      <figcaption class="figure-caption text-center">60fps</figcaption>
+    </figure>
   </section>
 
-  <section class="page rows">
-    <p>For web and mobile interfaces target FPS usually is 60,
-      since most of the screens works on <a style="color: white" href="https://en.wikipedia.org/wiki/Refresh_rate#Computer_displays">60Hz refresh rate</a>
+  <section class="page rows" id="droppedframes">
+    <p>For web and mobile interfaces target FPS usually is 60, since most of the screens works on
+      <a style="color: white" href="https://en.wikipedia.org/wiki/Refresh_rate#Computer_displays">60Hz refresh rate</a>
       (Hello, the new iPad and its 120Hz).</p>
     <p>
-      However, rendering might not be finished in time, leading to <strong>dropped frames</strong>.
-      That time can be calculated: 1 second / 60 frames ≈ <strong>16.6ms</strong> per frame.
-      Basically, in such cases, the previous frame is displayed instead.
-      It's crucial when an app requires to present important layout changes for the visual feedback, but couldn't.
-      Framerate drops for a few frames and it got immediately noticed by user.
+      However, rendering might not be finished in time, leading to
+      <strong>dropped frames</strong>. That time can be calculated: 1 second / 60 frames ≈
+      <strong>16.6ms</strong> per frame. Basically, in such cases, the previous frame is displayed instead. It's crucial when an
+      app requires to present important layout changes for the visual feedback, but couldn't. Framerate drops for a few frames
+      and it got immediately noticed by user.
     </p>
   </section>
 
@@ -215,14 +285,13 @@
       <figcaption class="figure-caption text-center">Dropped frames</figcaption>
     </figure>
 
-    <p>Imagine an app: a simple box moving with linear speed from bottom to up.
-       Let's add an artificial JS buzz generator, which randomly freezes the JS thread for 2-4 frames.
-     <strong>You can notice lags in the movement.</strong>
-     We can capture screenshots of our app 60 times per seconds and create a sequence of snapshots.
-     This allows to compare two neighbor frames, pixel by pixel. Naive approach: If frame has changed pixels, we mark it as a green.
-     <img src="media/animated_frames.png" class="img-responsive centered" alt="Frames stats" style="max-width: 400px; padding: 2em" />
-
-      What do orange frames mean for a smooth move?
+    <p>Imagine an app: a simple box moving with linear speed from bottom to up. Let's add an artificial JS buzz generator, which
+      randomly freezes the JS thread for 2-4 frames.
+      <strong>You can notice lags in the movement.</strong>
+      We can capture screenshots of our app 60 times per seconds and create a sequence of snapshots. This allows to compare two
+      neighbor frames, pixel by pixel. Naive approach: If frame has changed pixels, we mark it as a green.
+      <img src="media/animated_frames.png" class="img-responsive centered" alt="Frames stats" style="max-width: 400px; padding: 2em"
+      /> What do orange frames mean for a smooth move?
     </p>
   </section>
 
@@ -231,28 +300,31 @@
     </p>
     <figure class="figure">
       <img src="media/animated_canvas_small.png" style="max-height: 600px" alt="Snapshot of the whole sequence of frames" />
-      <figcaption class="figure-caption text-center"><a href="media/animated_canvas.png" style="color: white">In full resolution (5598 × 14014)</a></figcaption>
+      <figcaption class="figure-caption text-center">
+        <a href="media/animated_canvas.png" style="color: white">In full resolution (5598 × 14014)</a>
+      </figcaption>
     </figure>
   </section>
 
   <section class="page">
     <p>
-      This is how the segment of the sequence  with dropped frame looks more closely, consisted of three frames:
-      <img src="media/animated_canvas_dropped.png" class="img-responsive" alt="Dropped frame" style="padding-top: 2em; width: 400px" />
+      This is how the segment of the sequence with dropped frame looks more closely, consisted of three frames:
+      <img src="media/animated_canvas_dropped.png" class="img-responsive" alt="Dropped frame" style="padding-top: 2em; width: 400px"
+      />
     </p>
 
     <p>
-      Normally the box slightly moves to the desired direction by a few pixels every 16ms.
-      But when rendering is artificially freezed, the calculation for a position can't be done in time and the box stops moving at all.
-      And after freezing ends, the box jumps directly to the position according to timestamp. All of this combined produce the lag.
+      Normally the box slightly moves to the desired direction by a few pixels every 16 milliseconds. But when a rendering in this
+      example is slowed down by extensive calculations, the calculation for a position can't be done in time and the box
+      stops moving at all. And after freezing ends, the box jumps directly to the position it supposed to be located according
+      to the timestamp. All of this combined produce the lag.
     </p>
   </section>
 
   <section class="page">
     <p>
-      <strong>Latency</strong> is a response time between user interaction and the visual feedback.
-      It's more complicated to measure directly using the same approach,
-      but we can get the basic idea by analyzing the sequence too.
+      <strong>Latency</strong> is a response time between user interaction and the visual feedback. It's more complicated to measure
+      directly using the same approach, but we can get the basic idea by analyzing the sequence too.
     </p>
 
   </section>
@@ -265,16 +337,18 @@
   </section>
 
   <section class="page">
-    <p><strong>Videotape</strong> is a tool for capturing and analyzing frames sequence in order
-      to find UX performance regressions in your web and mobile apps.
-      It's an basic idea with a simple implementation to research the problem.</p>
-    <p>Videotape.app is a macOS only app roughly 4MB (half of size of which is an app icon)
-      with a thin node module wrapper for CLI management and distribution. You can install it with <code>npm install videotape -g</code> and use via command-line or GUI
-      if you're really willing to be <i>an alpha tester</i>.</p>
-      <figure class="figure">
-        <img src="media/videotape0.1.png" class="img-responsive" alt="Videotape 0.1" />
-      </figure>
+    <p>
+      <strong>Videotape</strong> is a tool for capturing and analyzing frames sequence in order to find UX performance regressions
+      in your web and mobile apps. It's an basic idea with a simple implementation to research the problem.</p>
+    <p>Videotape.app is a macOS only app roughly 4MB (half of size of which is an app icon) with a thin node module wrapper
+      for CLI management and distribution. You can install it with
+      <code>npm install videotape -g</code> and use via command-line or GUI if you're really willing to be
+      <i>an alpha tester</i>.</p>
+    <figure class="figure">
+      <img src="media/videotape0.1.png" class="img-responsive" alt="Videotape 0.1" />
+    </figure>
   </section>
 
 </body>
+
 </html>

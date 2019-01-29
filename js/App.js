@@ -2,44 +2,44 @@
  * @flow
  */
 
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import {
   AsyncStorage,
   StyleSheet,
   Text,
   View,
-  LayoutAnimation,
-} from 'react-native';
+  LayoutAnimation
+} from "react-native";
 
-import * as httpBridge from 'react-native-http-bridge';
-import reducer, { Actions } from './reducer';
-import SplitView from './components/SplitView';
-import * as CaptureModule from './capture/CaptureModule';
-import ProjectsList from './components/ProjectsList';
-import SegmentsList from './components/SegmentsList';
-import SegmentDetails from './components/SegmentDetails';
-import addMetrics from './metrics';
+import * as httpBridge from "react-native-http-bridge";
+import reducer, { Actions } from "./reducer";
+import SplitView from "./components/SplitView";
+import * as CaptureModule from "./capture/CaptureModule";
+import ProjectsList from "./components/ProjectsList";
+import SegmentsList from "./components/SegmentsList";
+import SegmentDetails from "./components/SegmentDetails";
+import addMetrics from "./metrics";
 
-import { type AppState } from './types';
+import { type AppState } from "./types";
 
-const STORAGE_KEY = 'app.storage';
+const STORAGE_KEY = "app.storage";
 
-export default class VideoTapeApp extends Component {
+export default class VideoTapeApp extends Component<{}, AppState> {
   constructor() {
     super();
     this.state = {
-      projects: [{ title: 'Untitled', appName: 'Simulator', uuid: 0 }],
+      projects: [{ title: "Untitled", appName: "Simulator", uuid: 0 }],
       selectedProject: 0,
       segments: [],
-      selectedSegment: null,
+      selectedSegment: null
     };
     this.args = this.argsFromCli();
     this.resettingAttempts = 0;
   }
-  state: AppState;
+
   args: Object;
   resettingAttempts: number;
-  resettingTimeout: number;
+  resettingTimeout: TimeoutID;
 
   dispatch(action: { type: string, payload: any }) {
     clearTimeout(this.resettingTimeout);
@@ -63,7 +63,7 @@ export default class VideoTapeApp extends Component {
   }
 
   argsFromCli() {
-    if (process.argv && process.argv[0] && process.argv[0][0] !== '-') {
+    if (process.argv && process.argv[0] && process.argv[0][0] !== "-") {
       return JSON.parse(process.argv[0]);
     }
     return {};
@@ -71,31 +71,31 @@ export default class VideoTapeApp extends Component {
 
   async init() {
     if (this.args.http || __DEV__) {
-      httpBridge.start(5561, 'incoming', request => {
-        if (request.postData.type === 'STATUS') {
+      httpBridge.start(5561, "incoming", request => {
+        if (request.postData.type === "STATUS") {
           httpBridge.respond(200);
         }
-        if (request.postData.type === 'START_CAPTURING') {
+        if (request.postData.type === "START_CAPTURING") {
           CaptureModule.startCapturing();
           httpBridge.respond(200);
         }
-        if (request.postData.type === 'STOP_CAPTURING') {
+        if (request.postData.type === "STOP_CAPTURING") {
           CaptureModule.stopCapturing();
           httpBridge.respond(200);
         }
-        if (request.postData.type === 'GET_LAST_SEGMENT') {
+        if (request.postData.type === "GET_LAST_SEGMENT") {
           httpBridge.respond(
             200,
-            'application/json',
+            "application/json",
             JSON.stringify(addMetrics(this.state.segments[0]))
           );
         }
-        if (request.postData.type === 'RECORD_TOUCH_EVENT') {
-          console.log('recordedTouchEvent', request.postData.event);
+        if (request.postData.type === "RECORD_TOUCH_EVENT") {
+          console.log("recordedTouchEvent", request.postData.event);
           CaptureModule.recordTouchEvent(request.postData.event);
           httpBridge.respond(200);
         }
-        if (request.postData.type === 'EXIT') {
+        if (request.postData.type === "EXIT") {
           process.exit(0);
         }
       });
@@ -109,7 +109,7 @@ export default class VideoTapeApp extends Component {
     if (this.args.target) {
       CaptureModule.setSettings({
         ...this.state.projects[0],
-        appName: this.args.target,
+        appName: this.args.target
       });
       if (this.args.autorun) {
         setTimeout(() => CaptureModule.startCapturing(), 100);
@@ -124,7 +124,7 @@ export default class VideoTapeApp extends Component {
       this.dispatch({ type: Actions.UPDATE_SETTINGS, payload: projectSettings })
     );
     CaptureModule.onCapturingStateChange(event => {
-      if (event.capturingState === 'error') {
+      if (event.capturingState === "error") {
         if (this.args.autorun && this.resettingAttempts > 5) {
           CaptureModule.log(`Error: ${event.body.error}`);
           process.exit(1);
@@ -138,7 +138,7 @@ export default class VideoTapeApp extends Component {
       }
       this.dispatch({
         type: event.capturingState,
-        payload: event.body,
+        payload: event.body
       });
     });
     this.init();
@@ -161,13 +161,15 @@ export default class VideoTapeApp extends Component {
             onContextMenuItemClick={(action, item) =>
               this.dispatch({
                 type: Actions.SEGMENT_CONTEXT_MENU_CLICKED,
-                payload: { action, item },
-              })}
+                payload: { action, item }
+              })
+            }
             onSelect={selectedSegment =>
               this.dispatch({
                 type: Actions.SELECT_SEGMENT,
-                payload: { selectedSegment },
-              })}
+                payload: { selectedSegment }
+              })
+            }
           />
           {selectedSegment && (
             <SegmentDetails
@@ -183,7 +185,7 @@ export default class VideoTapeApp extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
-    flexDirection: 'row',
-  },
+    backgroundColor: "white",
+    flexDirection: "row"
+  }
 });

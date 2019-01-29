@@ -33,7 +33,7 @@
     NSWindowController *windowController = [[NSWindowController alloc] initWithWindow:self.window];
 
     [[self window] setTitleVisibility:NSWindowTitleHidden];
-    [[self window] setAppearance:[NSAppearance appearanceNamed:NSAppearanceNameAqua]];
+    // [[self window] setAppearance:[NSAppearance appearanceNamed:NSAppearanceNameAqua]];
 
     [windowController setShouldCascadeWindows:NO];
     [windowController setWindowFrameAutosaveName:@"VideoTape"];
@@ -60,8 +60,7 @@
                                                       moduleName:@"VideoTape"
                                                initialProperties:nil
                                                    launchOptions:@{@"argv": [self argv]}];
-  // NSVisualEffectMaterialMediumLight NSVisualEffectMaterialUltraDark
-  rootView.material = NSVisualEffectMaterialLight;
+
   [self.window setContentView:rootView];
 }
 

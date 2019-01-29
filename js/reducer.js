@@ -1,21 +1,21 @@
 // @flow
 
 export const Actions = {
-  SEGMENT_FOUND: 'segmentFound',
-  SEGMENT_PROCESSED: 'segmentProcessed',
-  SELECT_SEGMENT: 'SELECT_SEGMENT',
-  SEGMENT_CONTEXT_MENU_CLICKED: 'SEGMENT_CONTEXT_MENU_CLICKED',
-  UPDATE_SETTINGS: 'UPDATE_SETTINGS',
+  SEGMENT_FOUND: "segmentFound",
+  SEGMENT_PROCESSED: "segmentProcessed",
+  SELECT_SEGMENT: "SELECT_SEGMENT",
+  SEGMENT_CONTEXT_MENU_CLICKED: "SEGMENT_CONTEXT_MENU_CLICKED",
+  UPDATE_SETTINGS: "UPDATE_SETTINGS"
 };
 
 type MainState = any;
 type Action = {
   type: string,
-  payload: any,
+  payload: any
 };
 
-export default function reducer(state: MainState, action: Adction) {
-  console.log('reducer for action =>', action);
+export default function reducer(state: MainState, action: Action) {
+  console.log("reducer for action =>", action);
   switch (action.type) {
     case Actions.UPDATE_SETTINGS:
       return {
@@ -25,10 +25,10 @@ export default function reducer(state: MainState, action: Adction) {
             project.uuid === action.payload.uuid
               ? {
                   ...project,
-                  ...action.payload,
+                  ...action.payload
                 }
               : project
-        ),
+        )
       };
     case Actions.SEGMENT_FOUND:
       return {
@@ -36,11 +36,12 @@ export default function reducer(state: MainState, action: Adction) {
         segments: [
           {
             ...action.payload,
-            title: `${action.payload.windowState.appName} (${state.segments
-              .length})`,
+            title: `${action.payload.windowState.appName} (${
+              state.segments.length
+            })`
           },
-          ...state.segments,
-        ],
+          ...state.segments
+        ]
       };
     case Actions.SEGMENT_PROCESSED:
       const uuid = action.payload.uuid;
@@ -51,15 +52,15 @@ export default function reducer(state: MainState, action: Adction) {
             segment.uuid === uuid
               ? {
                   ...segment,
-                  ...action.payload,
+                  ...action.payload
                 }
               : segment
-        ),
+        )
       };
     case Actions.SELECT_SEGMENT:
       return {
         ...state,
-        selectedSegment: action.payload.selectedSegment,
+        selectedSegment: action.payload.selectedSegment
       };
     case Actions.SEGMENT_CONTEXT_MENU_CLICKED:
       return {
@@ -67,7 +68,7 @@ export default function reducer(state: MainState, action: Adction) {
         segments: state.segments.filter(
           segment => segment.title !== action.payload.item.title
         ),
-        selectedSegment: null, // TODO: choose next on the list
+        selectedSegment: null // TODO: choose next on the list
       };
     default:
       return state;

@@ -39,7 +39,9 @@
 
 - (void)restart:(NSTimer *)timer
 {
-  [((AVPlayerItem *)timer.userInfo) seekToTime:kCMTimeZero completionHandler:^{}];
+  [((AVPlayerItem *)timer.userInfo) seekToTime:kCMTimeZero completionHandler:^(BOOL finished) {
+    
+  }];
 }
 
 - (void)setSrc:(NSString *)url
